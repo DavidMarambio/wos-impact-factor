@@ -1,0 +1,84 @@
+version: '3.8'
+services:
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    hostname: mongodb
+    restart: always
+    volumes:
+      - papers-wos:/data/db
+      - papers-wos:/data/configdb
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_USER: ${DB_USER}
+      MONGO_INITDB_PWD: ${DB_PASS}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    networks:
+      backendNetwork:
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
+    image: wos:backend
+    container_name: backend
+    hostname: backend
+    restart: always
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    env_file:
+      - .env
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: localhost
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: mongodb
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - backendNetwork
+      - frontendNetwork
+
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    image: wos:frontend
+    container_name: frontend
+    hostname: frontend
+    ports:
+      - 80:80
+    env_file:
+      - .env
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: backend
+      JWT_SECRET: ${JWT_SECRET}
+    links:
+      - backend
+    depends_on:
+      - backend
+    networks:
+      frontendNetwork:
+
+volumes:
+  papers-wos:
+
+
+networks:
+  backendNetwork:
+    driver: bridge
+  frontendNetwork:
+    driver: bridge
