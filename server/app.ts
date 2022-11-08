@@ -12,8 +12,8 @@ import { AuthRoutes } from "./auth/auth.routes.config";
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
-const PORT = process.env.BACKEND_PORT;
-const HOST = process.env.BACKEND_HOST;
+const PORT = process.env.BACKEND_PORT || 3000;
+const HOST = process.env.BACKEND_HOST || 'localhost';
 const routes: Array<CommonRoutesConfig> = [];
 const debugLog: debug.IDebugger = debug("app");
 
