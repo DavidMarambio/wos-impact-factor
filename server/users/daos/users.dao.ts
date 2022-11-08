@@ -2,7 +2,6 @@ import mongooseService from "../../common/services/mongoose.service";
 import { CreateUserDto } from "../dto/create.user.dto";
 import { PatchUserDto } from "../dto/patch.user.dto";
 import { PutUserDto } from "../dto/put.user.dto";
-import argon2 from 'argon2';
 import shortid from "shortid";
 import debug from "debug";
 
@@ -32,9 +31,6 @@ class UsersDao {
 
   async addUser(userFields: CreateUserDto) {
     const userId = shortid.generate();
-    
-    userFields.password = (await argon2.hash(userFields.password)).toString();
-
     const user = new this.User({
       _id: userId,
       ...userFields,
@@ -60,9 +56,6 @@ class UsersDao {
   }
 
   async updateUserById(userId: string, userFields: PatchUserDto | PutUserDto) {
-    if(userFields.password){
-      userFields.password = (await argon2.hash(userFields.password)).toString();
-    }
     const existingUser = await this.User.findOneAndUpdate(
       { _id: userId },
       { $set: userFields },
