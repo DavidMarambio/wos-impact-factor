@@ -1,29 +1,15 @@
-import mongooseService from "../../common/services/mongoose.service";
+import userModel from "../../models/User";
 import { CreateUserDto } from "../dto/create.user.dto";
 import { PatchUserDto } from "../dto/patch.user.dto";
 import { PutUserDto } from "../dto/put.user.dto";
 import shortid from "shortid";
 import debug from "debug";
 
+
 const log: debug.IDebugger = debug("app:in-memory-dao");
 
 class UsersDao {
   users: Array<CreateUserDto> = [];
-  Schema = mongooseService.getMongoose().Schema;
-
-  userSchema = new this.Schema(
-    {
-      _id: String,
-      email: String,
-      password: { type: String, select: false },
-      firstName: String,
-      lastName: String,
-      permissionFlags: Number,
-    },
-    { id: false, versionKey: false }
-  );
-
-  User = mongooseService.getMongoose().model("Users", this.userSchema);
 
   constructor() {
     log("Created new instance of UsersDao");
@@ -31,7 +17,7 @@ class UsersDao {
 
   async addUser(userFields: CreateUserDto) {
     const userId = shortid.generate();
-    const user = new this.User({
+    const user = new userModel({
       _id: userId,
       ...userFields,
       permissionFlags: 1,
@@ -41,22 +27,22 @@ class UsersDao {
   }
 
   async getUsers(limit = 25, page = 0) {
-    return this.User.find()
+    return await userModel.find()
       .limit(limit)
       .skip(limit * page)
       .exec();
   }
 
   async getUserById(userId: string) {
-    return this.User.findOne({ _id: userId }).populate("User").exec();
+    return await userModel.findOne({ _id: userId }).exec();
   }
 
   async getUserByEmail(email: string) {
-    return this.User.findOne({ email: email }).exec();
+    return await userModel.findOne({ email: email }).exec();
   }
 
   async updateUserById(userId: string, userFields: PatchUserDto | PutUserDto) {
-    const existingUser = await this.User.findOneAndUpdate(
+    const existingUser = await userModel.findOneAndUpdate(
       { _id: userId },
       { $set: userFields },
       { new: true }
@@ -65,11 +51,11 @@ class UsersDao {
   }
 
   async removeUserById(userId: string) {
-    return this.User.deleteOne({ _id: userId }).exec();
+    return await userModel.deleteOne({ _id: userId }).exec();
   }
 
   async getUserByEmailWithPassword(email: string) {
-    return this.User.findOne({ email: email })
+    return await userModel.findOne({ email: email })
       .select("_id email permissionFlags +password")
       .exec();
   }

@@ -2,7 +2,7 @@ import express from "express";
 import papersService from "../services/papers.service";
 import debug from "debug";
 
-const log: debug.IDebugger = debug("app:papers-controller");
+const log: debug.IDebugger = debug("app:papers-middleware");
 class PapersMiddleware {
   async validateRequiredPaperBodyFields(
     req: express.Request,

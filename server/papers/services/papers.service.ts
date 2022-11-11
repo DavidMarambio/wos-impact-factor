@@ -40,7 +40,7 @@ class PapersService implements CRUD {
   async getPapersByCodeWos(codeWos: string) {
     return PapersDao.getPapersByCodeWos(codeWos);
   }
-  
+
   async getPapersByJournalName(journalName: string) {
     return PapersDao.getPapersByJournalName(journalName);
   }
