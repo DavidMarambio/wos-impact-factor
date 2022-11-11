@@ -20,13 +20,13 @@ class ImpactFactor {
 })
 export class Journal {
     @prop({ unique: true })
-    public wosId: string;
-    @prop({ required: true, uppercase: true })
+    public wosId?: string;
+    @prop({ required: true, uppercase: true, trim: true })
     public name: string;
     @prop({ ref: () => Quartile })
-    public quartile: Ref<Quartile>[];
+    public quartile?: Ref<Quartile>[];
     @prop({ type: () => ImpactFactor })
-    public impactFactor: ImpactFactor[]
+    public impactFactor?: ImpactFactor[]
 }
 
 const journalModel: ReturnModelType<typeof Journal> = getModelForClass(Journal);
