@@ -9,6 +9,7 @@ import { CommonRoutesConfig } from "./common/common.routes.config";
 import { UsersRoutes } from "./users/users.routes.config";
 import { PapersRoutes } from "./papers/papers.routes.config";
 import { AuthRoutes } from "./auth/auth.routes.config";
+import mongooseService from "./common/services/mongoose.service";
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
@@ -16,6 +17,24 @@ const PORT = process.env.BACKEND_PORT || 3000;
 const HOST = process.env.BACKEND_HOST || 'localhost';
 const routes: Array<CommonRoutesConfig> = [];
 const debugLog: debug.IDebugger = debug("app");
+
+switch (mongooseService.getMongoose().connection.readyState) {
+  case 0:
+    console.log('MongoDB server disconnected!')
+    break;
+  case 1:
+    console.log('MongoDB server connected!')
+    break;
+  case 2:
+    console.log('MongoDB server connecting!')
+    break;
+  case 3:
+    console.log('MongoDB server disconnecting!')
+    break;
+  case 99:
+    console.log('MongoDB server unitialized!')
+    break;
+}
 
 // here we are adding middleware to parse all incoming requests as JSON
 app.use(express.json());

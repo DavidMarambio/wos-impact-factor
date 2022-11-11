@@ -8,10 +8,21 @@ class MongooseService {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000,
-    useFindAndModify: false,
   };
 
+  private USER = process.env.DB_USER || 'dev';
+  private PASS = process.env.DB_PASS || 'dev';
+  private HOST = process.env.DB_HOST || 'localhost';
+  private PORT = process.env.DB_PORT || 27017;
+  private DB = process.env.DB_NAME || 'wos-if';
+  private stringConnection;
+
   constructor() {
+    if(this.USER === 'dev'){
+      this.stringConnection = `mongodb://${this.HOST}:${this.PORT}/${this.DB}`
+    } else {
+      this.stringConnection = `mongodb://${this.USER}:${this.PASS}@${this.HOST}:${this.PORT}/${this.DB}`;
+    }
     this.connectWithRetry();
   }
 
@@ -23,7 +34,7 @@ class MongooseService {
     log("Attempting MongoDB connection (will retry if needed)");
     mongoose
       .connect(
-        `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
+        this.stringConnection,
         this.mongooseOptions
       )
       .then(() => {
