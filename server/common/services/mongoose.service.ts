@@ -14,11 +14,11 @@ class MongooseService {
   private PASS = process.env.DB_PASS || 'dev';
   private HOST = process.env.DB_HOST || 'localhost';
   private PORT = process.env.DB_PORT || 27017;
-  private DB = process.env.DB_NAME || 'wos-if';
+  private DB = process.env.DB_NAME || 'paper-wos-dev';
   private stringConnection;
 
   constructor() {
-    if(this.USER === 'dev'){
+    if (this.USER === 'dev') {
       this.stringConnection = `mongodb://${this.HOST}:${this.PORT}/${this.DB}`
     } else {
       this.stringConnection = `mongodb://${this.USER}:${this.PASS}@${this.HOST}:${this.PORT}/${this.DB}`;
