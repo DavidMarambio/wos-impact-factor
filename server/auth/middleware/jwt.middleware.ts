@@ -28,7 +28,7 @@ class JwtMiddleware {
     next: express.NextFunction
   ) {
     const user: any = await usersService.getUserByEmailWithPassword(
-      res.locals.jwt.password
+      res.locals.jwt.email
     );
     const salt = crypto.createSecretKey(
       Buffer.from(res.locals.jwt.refreshKey.data)
