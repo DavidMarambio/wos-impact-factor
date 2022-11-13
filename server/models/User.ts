@@ -1,9 +1,9 @@
 import { prop, modelOptions, getModelForClass, ReturnModelType } from '@typegoose/typegoose'
 
 enum Roles {
-  guest = "guest",
-  member = "member",
-  admin = "admin"
+  GUEST = "guest",
+  MEMBER = "member",
+  ADMIN = "admin"
 }
 
 @modelOptions({
@@ -22,7 +22,7 @@ export class User {
   public password: string
   @prop({ required: true, unique: true })
   public email: string
-  @prop({ default: Roles.member })
+  @prop({ default: Roles.MEMBER })
   public role: Roles
 }
 
