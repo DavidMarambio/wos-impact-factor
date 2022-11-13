@@ -1,3 +1,3 @@
 export interface CreateYearDto{
-    year: number
+    year: Number
 }

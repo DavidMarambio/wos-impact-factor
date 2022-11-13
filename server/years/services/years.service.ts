@@ -7,7 +7,7 @@ class YearsService implements CRUD {
         return yearsDao.addYear(resource);
     }
 
-    async deleteById(id: string) {
+    async deleteById(id: String) {
         const year = await yearsDao.getYearById(id);;
         if (year) {
             return yearsDao.disableYear(year.year);
@@ -19,19 +19,19 @@ class YearsService implements CRUD {
         return yearsDao.getYears(limit, page);
     }
 
-    async patchById(_id: string, _resource: any) {
+    async patchById(_id: String, _resource: any) {
 
     }
 
-    async readById(id: string) {
+    async readById(id: String) {
         return yearsDao.getYearById(id);
     }
 
-    async putById(_id: string, _resource: any) {
+    async putById(_id: String, _resource: any) {
 
     }
 
-    async disableYear(year: number) {
+    async disableYear(year: Number) {
         return yearsDao.disableYear(year);
     }
 

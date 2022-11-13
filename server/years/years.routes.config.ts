@@ -15,40 +15,24 @@ export class YearsRoutes extends CommonRoutesConfig {
             .route("/years")
             .get(
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ADMIN_PERMISSION
-                ),
+                commonPermissionMiddleware.roleCanReadYear,
                 yearsController.listYears
             );
 
         this.app
-        .route("/years/:yearId")
-        .get(
-            jwtMiddleware.validJwtNeeded,
-            commonPermissionMiddleware.permissionFlagRequired(
-                PermissionFlag.ADMIN_PERMISSION
-            ),
-            yearsController.getYearById
-        )
-
-        this.app
-        .route("/years/:year")
-        .get(
-            jwtMiddleware.validJwtNeeded,
-            commonPermissionMiddleware.permissionFlagRequired(
-                PermissionFlag.ADMIN_PERMISSION
-            ),
-            yearsController.getYearByYear
-        )
+            .route("/years/:year")
+            .get(
+                jwtMiddleware.validJwtNeeded,
+                commonPermissionMiddleware.roleCanReadYear,
+                yearsController.getYearByYear
+            )
 
 
         this.app
             .route("/years/createNewYear")
             .post(
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ADMIN_PERMISSION
-                ),
+                commonPermissionMiddleware.roleCanCreateYear,
                 yearsController.createNewYear
             )
 

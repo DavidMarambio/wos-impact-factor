@@ -25,7 +25,8 @@ class YearsController {
             const yearDisabled = await yearsService.disableYear(year.year);
             log(`Year disabled: ${yearDisabled?.year}`);
             if (yearDisabled) {
-                const newYear = await yearsService.create({ year: yearDisabled.year + 1 });
+                const nextYear = Number(yearDisabled.year) + 1;
+                const newYear = await yearsService.create({ year: nextYear });
                 res.status(201).send(newYear);
             }
             res.status(204).send();
