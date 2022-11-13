@@ -18,9 +18,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
             .route('/quartiles')
             .get(
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ALL_PERMISSIONS
-                ),
+                commonPermissionMiddleware.roleCanReadQuartile,
                 quartilesController.listQuartiles
             )
             .post(
@@ -31,6 +29,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
                 body('quartile').isString(),
                 body('percentile').isDecimal(),
                 bodyValidationMiddleware.verifiBodyFieldsErrors,
+                commonPermissionMiddleware.roleCanCreateQuartile,
                 quartilesMiddleware.validateSameQuartileWithJournalAreaAndYearDoesntExist,
                 quartilesController.createQuartile
             )
@@ -41,11 +40,16 @@ export class QuartilesRoutes extends CommonRoutesConfig {
             .route('/quartiles/:quartileId')
             .all(
                 quartilesMiddleware.validateQuartileExists,
-                jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction
+                jwtMiddleware.validJwtNeeded
             )
-            .get(quartilesController.getQuartileById)
-            .delete(quartilesController.removeQuartile)
+            .get(
+                commonPermissionMiddleware.roleCanReadQuartile,
+                quartilesController.getQuartileById
+            )
+            .delete(
+                commonPermissionMiddleware.roleCanDeleteQuartile,
+                quartilesController.removeQuartile
+            )
 
         this.app
             .route('/quartiles/:quartileId')
@@ -58,9 +62,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
                 body('percentile').isDecimal(),
                 bodyValidationMiddleware.verifiBodyFieldsErrors,
                 quartilesMiddleware.validateSameJournalAreaAndYearBelongToSameQuartile,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ALL_PERMISSIONS
-                ),
+                commonPermissionMiddleware.roleCanUpdateQuartile,
                 quartilesController.put
             )
 
@@ -69,7 +71,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
             .get(
                 quartilesMiddleware.validateQuartileExists,
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+                commonPermissionMiddleware.roleCanReadQuartile,
                 quartilesController.getQuartileByJournalYearAndArea
             )
 
@@ -78,7 +80,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
             .get(
                 quartilesMiddleware.validateQuartileExists,
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+                commonPermissionMiddleware.roleCanReadQuartile,
                 quartilesController.getQuartileByJournalAndArea
             )
 
@@ -87,7 +89,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
             .get(
                 quartilesMiddleware.validateQuartileExists,
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+                commonPermissionMiddleware.roleCanReadQuartile,
                 quartilesController.getQuartileByJournalAndYear
             )
 
@@ -100,9 +102,7 @@ export class QuartilesRoutes extends CommonRoutesConfig {
             body('percentile').isDecimal().optional(),
             bodyValidationMiddleware.verifiBodyFieldsErrors,
             quartilesMiddleware.validatePatchQuartile,
-            commonPermissionMiddleware.permissionFlagRequired(
-                PermissionFlag.ALL_PERMISSIONS
-            ),
+            commonPermissionMiddleware.roleCanUpdateQuartile,
             quartilesController.patch
         ])
 

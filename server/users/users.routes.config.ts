@@ -18,9 +18,7 @@ export class UsersRoutes extends CommonRoutesConfig {
       .route("/users")
       .get(
         jwtMiddleware.validJwtNeeded,
-        commonPermissionMiddleware.permissionFlagRequired(
-          PermissionFlag.ADMIN_PERMISSION
-        ),
+        commonPermissionMiddleware.roleCanReadUser,
         usersController.listUsers
       )
       .post(
@@ -29,6 +27,7 @@ export class UsersRoutes extends CommonRoutesConfig {
           .isLength({ min: 5 })
           .withMessage("Must include password (5+ characters)"),
         bodyValidationMiddleware.verifiBodyFieldsErrors,
+        commonPermissionMiddleware.roleCanCreateUser,
         usersMiddleware.validateSameEmailDoesntExist,
         usersController.createUser
       );
@@ -42,8 +41,14 @@ export class UsersRoutes extends CommonRoutesConfig {
         jwtMiddleware.validJwtNeeded,
         commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction
       )
-      .get(usersController.getUserById)
-      .delete(usersController.removeUser);
+      .get(
+        commonPermissionMiddleware.roleCanReadUser,
+        usersController.getUserById
+      )
+      .delete(
+        commonPermissionMiddleware.roleCanDeleteUser,
+        usersController.removeUser
+      );
 
     this.app.put("/users/:userId", [
       body("email").isEmail(),
@@ -56,9 +61,7 @@ export class UsersRoutes extends CommonRoutesConfig {
       bodyValidationMiddleware.verifiBodyFieldsErrors,
       usersMiddleware.validateSameEmailBelongToSameUser,
       usersMiddleware.userCantChangePermission,
-      commonPermissionMiddleware.permissionFlagRequired(
-        PermissionFlag.PAID_PERMISSION
-      ),
+      commonPermissionMiddleware.roleCanUpdateUser,
       usersController.put,
     ]);
 
@@ -74,18 +77,14 @@ export class UsersRoutes extends CommonRoutesConfig {
       bodyValidationMiddleware.verifiBodyFieldsErrors,
       usersMiddleware.validatePatchEmail,
       usersMiddleware.userCantChangePermission,
-      commonPermissionMiddleware.permissionFlagRequired(
-        PermissionFlag.PAID_PERMISSION
-      ),
+      commonPermissionMiddleware.roleCanUpdateUser,
       usersController.patch,
     ]);
 
     this.app.put("users/:userId/permissionFlags/:permissionFlags", [
       jwtMiddleware.validJwtNeeded,
       commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
-      commonPermissionMiddleware.permissionFlagRequired(
-        PermissionFlag.FREE_PERMISSION
-      ),
+      commonPermissionMiddleware.roleCanUpdateUser,
       usersController.updatePermissionFlags,
     ]);
 

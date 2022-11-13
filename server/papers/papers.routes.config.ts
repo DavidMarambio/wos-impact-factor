@@ -5,7 +5,7 @@ import { CommonRoutesConfig } from "../common/common.routes.config";
 import commonPermissionMiddleware from "../common/middleware/common.permission.middleware";
 import { PermissionFlag } from "../common/middleware/common.permissionflag.enum";
 import papersController from "./controllers/papers.controller";
-import { typePapers } from '../common/types/papers.types'
+import { typePapers } from "../models/Paper";
 import bodyValidationMiddleware from "../common/middleware/body.validation.middleware";
 import papersMiddleware from "./middleware/papers.middleware";
 
@@ -21,9 +21,7 @@ export class PapersRoutes extends CommonRoutesConfig {
       .route('/papers')
       .get(
         jwtMiddleware.validJwtNeeded,
-        commonPermissionMiddleware.permissionFlagRequired(
-          PermissionFlag.ALL_PERMISSIONS
-        ),
+        commonPermissionMiddleware.roleCanReadPaper,
         papersController.listPapers
       )
       .post(
@@ -40,6 +38,7 @@ export class PapersRoutes extends CommonRoutesConfig {
         body('initialPage').isInt(),
         body('endPage').isInt(),
         bodyValidationMiddleware.verifiBodyFieldsErrors,
+        commonPermissionMiddleware.roleCanCreatePaper,
         papersMiddleware.validateSamePaperCodeDoiDoesntExist,
         papersMiddleware.validateSamePaperCodeWosDoesntExist,
         papersMiddleware.validateSamePaperTitleDoesntExist,
@@ -52,11 +51,16 @@ export class PapersRoutes extends CommonRoutesConfig {
       .route('/papers/:paperId')
       .all(
         papersMiddleware.validatePaperExists,
-        jwtMiddleware.validJwtNeeded,
-        commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction
+        jwtMiddleware.validJwtNeeded
       )
-      .get(papersController.getPaperById)
-      .delete(papersController.removePaper)
+      .get(
+        commonPermissionMiddleware.roleCanReadPaper,
+        papersController.getPaperById
+      )
+      .delete(
+        commonPermissionMiddleware.roleCanDeletePaper,
+        papersController.removePaper
+      )
 
     this.app.put('/papers/:paperId', [
       body('year').isInt().notEmpty(),
@@ -75,9 +79,7 @@ export class PapersRoutes extends CommonRoutesConfig {
       papersMiddleware.validateSameCodeDoiBelongToSamePaper,
       papersMiddleware.validateSameCodeWosBelongToSamePaper,
       papersMiddleware.validateSameTitleBelongToSamePaper,
-      commonPermissionMiddleware.permissionFlagRequired(
-        PermissionFlag.ALL_PERMISSIONS
-      ),
+      commonPermissionMiddleware.roleCanUpdatePaper,
       papersController.put
     ])
 
@@ -98,9 +100,7 @@ export class PapersRoutes extends CommonRoutesConfig {
       papersMiddleware.validatePatchPaperCodeDoi,
       papersMiddleware.validatePatchPaperCodeWos,
       papersMiddleware.validatePatchPaperTitle,
-      commonPermissionMiddleware.permissionFlagRequired(
-        PermissionFlag.ALL_PERMISSIONS
-      ),
+      commonPermissionMiddleware.roleCanUpdatePaper,
       papersController.patch
     ])
 

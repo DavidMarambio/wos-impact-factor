@@ -18,9 +18,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
             .route('/journals')
             .get(
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ALL_PERMISSIONS
-                ),
+                commonPermissionMiddleware.roleCanReadJournal,
                 journalsController.listJournals
             )
             .post(
@@ -28,6 +26,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
                 body('name').isString().notEmpty(),
                 body('impactFactor').isArray(),
                 bodyValidationMiddleware.verifiBodyFieldsErrors,
+                commonPermissionMiddleware.roleCanCreateJournal,
                 journalsMiddleware.validateSameJournalNameDoesntExist,
                 journalsMiddleware.validateSameJournalWosIdDoesntExist,
                 journalsController.createJournal
@@ -39,18 +38,23 @@ export class JournalsRoutes extends CommonRoutesConfig {
             .route('/journals/:journalId')
             .all(
                 journalsMiddleware.validateJournalExists,
-                jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction
+                jwtMiddleware.validJwtNeeded
             )
-            .get(journalsController.getJournalById)
-            .delete(journalsController.removeJournal)
+            .get(
+                commonPermissionMiddleware.roleCanReadJournal,
+                journalsController.getJournalById
+            )
+            .delete(
+                commonPermissionMiddleware.roleCanDeleteJournal,
+                journalsController.removeJournal
+            )
 
         this.app
             .route('/journals/:wosId')
             .get(
                 journalsMiddleware.validateJournalExists,
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+                commonPermissionMiddleware.roleCanReadJournal,
                 journalsController.getJournalByWosId
             )
             .put(
@@ -60,9 +64,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
                 body('quartile').isArray(),
                 bodyValidationMiddleware.verifiBodyFieldsErrors,
                 journalsMiddleware.validateSameWosIdBelongToSameJournal,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ALL_PERMISSIONS
-                ),
+                commonPermissionMiddleware.roleCanUpdateJournal,
                 journalsController.put
             )
 
@@ -71,7 +73,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
             .get(
                 journalsMiddleware.validateJournalExists,
                 jwtMiddleware.validJwtNeeded,
-                commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+                commonPermissionMiddleware.roleCanReadJournal,
                 journalsController.getJournalByName
             )
             .put(
@@ -81,9 +83,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
                 body('quartile').isArray(),
                 bodyValidationMiddleware.verifiBodyFieldsErrors,
                 journalsMiddleware.validateSameNameBelongToSameJournal,
-                commonPermissionMiddleware.permissionFlagRequired(
-                    PermissionFlag.ALL_PERMISSIONS
-                ),
+                commonPermissionMiddleware.roleCanUpdateJournal,
                 journalsController.put
             )
 
@@ -95,9 +95,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
             body('quartile').isArray().optional(),
             bodyValidationMiddleware.verifiBodyFieldsErrors,
             journalsMiddleware.validatePatchJournalName,
-            commonPermissionMiddleware.permissionFlagRequired(
-                PermissionFlag.ALL_PERMISSIONS
-            ),
+            commonPermissionMiddleware.roleCanUpdateJournal,
             journalsController.patch
         ])
 
@@ -108,9 +106,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
             body('quartile').isArray().optional(),
             bodyValidationMiddleware.verifiBodyFieldsErrors,
             journalsMiddleware.validatePatchJournalWosId,
-            commonPermissionMiddleware.permissionFlagRequired(
-                PermissionFlag.ALL_PERMISSIONS
-            ),
+            commonPermissionMiddleware.roleCanUpdateJournal,
             journalsController.patch
         ])
 
