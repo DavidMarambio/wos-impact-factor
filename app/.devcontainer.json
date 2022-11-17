@@ -1,0 +1,8 @@
+{
+  "name": "Frontend-Dev-Wos-impact",
+  "dockerComposeFile": ["../docker-compose.dev.yml"],
+  "service": "frontend-dev",
+  "shutdownAction": "none",
+  "workspaceFolder": "/workspace/frontend",
+  "extensions": ["dbaeumer.vscode-eslint", "Vue.volar"]
+}

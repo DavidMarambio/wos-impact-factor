@@ -1,0 +1,8 @@
+{
+    "name": "Backend-Dev-Wos-impact",
+    "dockerComposeFile": ["../docker-compose.dev.yml"],
+    "service": "backend-dev",
+    "shutdownAction": "none",
+    "workspaceFolder": "/workspace/backend",
+    "extensions": ["dbaeumer.vscode-eslint"]
+  }
