@@ -1,0 +1,6 @@
+FROM node:lts-alpine as build-stage
+LABEL authors="David Marambio"
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD npm run serve

@@ -1,4 +1,4 @@
 ./dist
-./node_module
 .gitignore
 Dockerfile.*
+node_module

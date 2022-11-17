@@ -1,0 +1,99 @@
+version: '3.8'
+services:
+
+  mongodb-dev:
+    image: mongo
+    container_name: mongodb-dev
+    hostname: mongodb-dev
+    restart: always
+    volumes:
+      - papers-wos-dev:/data/db
+      - papers-wos-dev:/data/configdb
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    env_file:
+      - .env.dev
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_USER: ${DB_USER}
+      MONGO_INITDB_PWD: ${DB_PASS}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    networks:
+      backendDevNetwork:
+
+
+  backend-dev:
+    image: alpine
+    container_name: backend-dev
+    hostname: backend-dev
+    restart: always
+    entrypoint:
+      [
+        "sh",
+        "-c",
+        "apk add --update curl bash ca-certificates openssl ncurses coreutils python3 make gcc g++ libgcc linux-headers grep util-linux binutils findutils nodejs nodejs-current npm && cd /app && npm install && npm rebuild bcrypt --build-from-source && npm run dev"
+      ]
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    env_file:
+      - .env.dev
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: localhost
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: mongodb-dev
+    links:
+      - mongodb-dev
+    depends_on:
+      - mongodb-dev
+    networks:
+      - backendDevNetwork
+      - frontendDevNetwork
+
+  frontend-dev:
+    image: alpine
+    container_name: frontend-dev
+    hostname: frontend-dev
+    restart: always
+    entrypoint:
+      [
+        "sh",
+        "-c",
+        "apk add --update curl bash ca-certificates openssl ncurses coreutils python3 make gcc g++ libgcc linux-headers grep util-linux binutils findutils nodejs nodejs-current npm yarn && cd /app && npm install && npm run serve"
+      ]
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    ports:
+      - 80:8080
+    env_file:
+      - .env.dev
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: backend-dev
+      JWT_SECRET: ${JWT_SECRET}
+    links:
+      - backend-dev
+    depends_on:
+      - backend-dev
+    networks:
+      frontendDevNetwork:
+
+
+volumes:
+  papers-wos-dev:
+
+
+networks:
+  backendDevNetwork:
+    driver: bridge
+  frontendDevNetwork:
+    driver: bridge
