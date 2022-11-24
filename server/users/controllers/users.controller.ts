@@ -1,56 +1,117 @@
-import express from "express";
-import argon2 from "argon2";
-import usersService from "../services/users.service";
-import debug from "debug";
-import { PatchUserDto } from "../dto/patch.user.dto";
+import express from 'express'
+import usersService from '../services/users.service'
+import debug from 'debug'
+import { ForgotPasswordInput, ResetPasswordInput, VerifyUserInput } from '../dto/create.user.dto'
+import { PatchUserDto } from '../dto/patch.user.dto'
+import { Roles } from '../../models/User.model'
+import sendEmail from '../../common/utils/mailer'
+import { randomString } from '../../common/utils/random.string'
 
-const log: debug.IDebugger = debug("app:users-controller");
+const log: debug.IDebugger = debug('app:users-controller')
 class UsersController {
   async listUsers(_req: express.Request, res: express.Response) {
-    const users = await usersService.list(100, 0);
-    res.status(200).send(users);
+    const users = await usersService.list(100, 0)
+    res.status(200).send(users)
   }
 
   async getUserById(req: express.Request, res: express.Response) {
-    const user = await usersService.readById(req.body.id);
-    res.status(200).send(user);
+    const user = await usersService.readById(req.body.id)
+    res.status(200).send(user)
   }
 
   async createUser(req: express.Request, res: express.Response) {
-    req.body.password = await argon2.hash(req.body.password);
-    const userId = await usersService.create(req.body);
-    res.status(201).send({ id: userId });
+    try {
+      const userId = await usersService.create(req.body)
+      const user = await usersService.readById(userId.toString())
+      if (user) {
+        await sendEmail({
+          to: user.email,
+          from: "test@example.com",
+          subject: "Verify your email",
+          text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
+        });
+
+        res.status(201).send({ id: userId, message: "User successfully created" })
+      }
+    } catch (error) {
+      return res.status(500).send({ message: error });
+    }
   }
 
   async patch(req: express.Request, res: express.Response) {
-    if (req.body.password) {
-      req.body.password = await argon2.hash(req.body.password);
-    }
-    log(await usersService.patchById(req.body.id, req.body));
-    //HTTP 204 No Content
-    res.status(204).send();
+    log(await usersService.patchById(req.body.id, req.body))
+    // HTTP 204 No Content
+    res.status(204).send()
   }
 
   async put(req: express.Request, res: express.Response) {
-    req.body.password = await argon2.hash(req.body.password);
-    log(await usersService.putById(req.body.id, req.body));
-    //HTTP 204 No Content
-    res.status(204).send();
+    log(await usersService.putById(req.body.id, req.body))
+    // HTTP 204 No Content
+    res.status(204).send()
   }
 
   async removeUser(req: express.Request, res: express.Response) {
-    log(await usersService.deleteById(req.body.id));
-    //HTTP 204 No Content
-    res.status(204).send();
+    log(await usersService.deleteById(req.body.id))
+    // HTTP 204 No Content
+    res.status(204).send()
   }
 
-  async updatePermissionFlags(req: express.Request, res: express.Response) {
-    const patchUserDto: PatchUserDto = {
-      permissionFlags: parseInt(req.params.permissionFlags),
-    };
+  async updateRole(req: express.Request, res: express.Response) {
+    const roleEnum = req.params.role as Roles;
+    const patchUserDto: PatchUserDto = { role: roleEnum }
     log(await usersService.patchById(req.body.id, patchUserDto))
     res.status(204).send()
   }
+
+  async verifyUser(req: express.Request<VerifyUserInput>, res: express.Response) {
+    const id = req.params.id;
+    const verificationCode = req.params.verificationCode;
+    const user = await usersService.readById(id);
+    if (!user) return res.send("Could not verify user");
+    if (user.verified) return res.send("User is already verified");
+    if (user.verificationCode === verificationCode) {
+      user.verified = true;
+      await user.save();
+      return res.send("User successfully verified");
+    }
+    return res.send("Could not verify user");
+  }
+
+  async forgotPassword(req: express.Request<{}, {}, ForgotPasswordInput>, res: express.Response) {
+    const message =
+      "If a user with that email is registered you will receive a password reset email";
+    const { email } = req.body;
+    const user = await usersService.getUserByEmail(email);
+    if (!user) return res.send(message)
+    if (!user.verified) return res.send("User is not verified");
+    const passwordResetCode = randomString(15);
+    user.passwordResetCode = passwordResetCode;
+    await user.save();
+    await sendEmail({
+      to: user.email,
+      from: "test@example.com",
+      subject: "Reset your password",
+      text: `Password reset code: ${passwordResetCode}. Id ${user._id}`,
+    });
+    return res.send(message);
+  }
+
+  async resetPassword(
+    req: express.Request<ResetPasswordInput["params"], {}, ResetPasswordInput["body"]>,
+    res: express.Response
+  ) {
+    const { id, passwordResetCode } = req.params;
+    const { password } = req.body;
+    const user = await usersService.readById(id);
+    if (!user || !user.passwordResetCode || user.passwordResetCode !== passwordResetCode) {
+      return res.status(400).send("Could not reset user password");
+    }
+    user.passwordResetCode = null;
+    user.password = password;
+    await user.save();
+    return res.send("Successfully updated password");
+  }
+
 }
 
-export default new UsersController();
+export default new UsersController()

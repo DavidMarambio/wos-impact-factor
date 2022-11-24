@@ -1,45 +1,40 @@
-import express from "express";
-import { body } from "express-validator";
-import { CommonRoutesConfig } from "../common/common.routes.config";
-import usersController from "./controllers/users.controller";
-import commonPermissionMiddleware from "../common/middleware/common.permission.middleware";
-import bodyValidationMiddleware from "../common/middleware/body.validation.middleware";
-import usersMiddleware from "./middleware/users.middleware";
-import jwtMiddleware from "../auth/middleware/jwt.middleware";
-import { PermissionFlag } from "../common/middleware/common.permissionflag.enum";
+import express from 'express'
+import { CommonRoutesConfig } from '../common/common.routes.config'
+import usersController from './controllers/users.controller'
+import commonPermissionMiddleware from '../common/middleware/common.permission.middleware'
+import bodyValidationMiddleware from '../common/middleware/body.validation.middleware'
+import usersMiddleware from './middleware/users.middleware'
+import jwtMiddleware from '../auth/middleware/jwt.middleware'
+import { createUserSchema, forgotPasswordSchema, resetPasswordSchema, verifyUserSchema } from './dto/create.user.dto'
+import { updateUserSchema } from './dto/put.user.dto'
 
 export class UsersRoutes extends CommonRoutesConfig {
   constructor(app: express.Application) {
-    super(app, "UsersRoutes");
+    super(app, 'UsersRoutes')
   }
 
   configureRoutes(): express.Application {
     this.app
-      .route("/users")
+      .route('/users')
       .get(
         jwtMiddleware.validJwtNeeded,
         commonPermissionMiddleware.roleCanReadUser,
         usersController.listUsers
       )
       .post(
-        body("email").isEmail(),
-        body("password")
-          .isLength({ min: 5 })
-          .withMessage("Must include password (5+ characters)"),
-        bodyValidationMiddleware.verifiBodyFieldsErrors,
+        bodyValidationMiddleware.verifiBodyFieldsErrors(createUserSchema),
         commonPermissionMiddleware.roleCanCreateUser,
         usersMiddleware.validateSameEmailDoesntExist,
         usersController.createUser
-      );
+      )
 
-    this.app.param("userId", usersMiddleware.extractUserId);
+    this.app.param('userId', usersMiddleware.extractUserId)
 
     this.app
-      .route("/users/:userId")
+      .route('/users/:userId')
       .all(
-        usersMiddleware.validateUserExists,
         jwtMiddleware.validJwtNeeded,
-        commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction
+        usersMiddleware.validateUserExists
       )
       .get(
         commonPermissionMiddleware.roleCanReadUser,
@@ -48,46 +43,52 @@ export class UsersRoutes extends CommonRoutesConfig {
       .delete(
         commonPermissionMiddleware.roleCanDeleteUser,
         usersController.removeUser
-      );
+      )
 
-    this.app.put("/users/:userId", [
-      body("email").isEmail(),
-      body("password")
-        .isLength({ min: 5 })
-        .withMessage("Must include password (5+ characters)"),
-      body("firstName").isString(),
-      body("lastName").isString(),
-      body("permissionFlags").isInt(),
-      bodyValidationMiddleware.verifiBodyFieldsErrors,
+    this.app.put('/users/:userId', [
+      jwtMiddleware.validJwtNeeded,
+      bodyValidationMiddleware.verifiBodyFieldsErrors(updateUserSchema),
       usersMiddleware.validateSameEmailBelongToSameUser,
-      usersMiddleware.userCantChangePermission,
       commonPermissionMiddleware.roleCanUpdateUser,
-      usersController.put,
-    ]);
+      usersController.put
+    ])
 
-    this.app.patch("/users/:userId", [
-      body("email").isEmail().optional(),
-      body("password")
-        .isLength({ min: 5 })
-        .withMessage("Password must be 5+ characters")
-        .optional(),
-      body("firstName").isString().optional(),
-      body("lastName").isString().optional(),
-      body("permisssionFlags").isInt().optional(),
-      bodyValidationMiddleware.verifiBodyFieldsErrors,
+    this.app.patch('/users/:userId', [
+      jwtMiddleware.validJwtNeeded,
+      bodyValidationMiddleware.verifiBodyFieldsErrors(updateUserSchema),
       usersMiddleware.validatePatchEmail,
-      usersMiddleware.userCantChangePermission,
       commonPermissionMiddleware.roleCanUpdateUser,
-      usersController.patch,
-    ]);
+      usersController.patch
+    ])
 
-    this.app.put("users/:userId/permissionFlags/:permissionFlags", [
+    this.app.put('users/:userId/role/:role', [
       jwtMiddleware.validJwtNeeded,
       commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
       commonPermissionMiddleware.roleCanUpdateUser,
-      usersController.updatePermissionFlags,
-    ]);
+      usersController.updateRole
+    ])
 
-    return this.app;
+    this.app
+      .route('users/verify/:id/:verificationCode')
+      .post(
+        bodyValidationMiddleware.verifiBodyFieldsErrors(verifyUserSchema),
+        usersController.verifyUser
+      )
+
+    this.app
+      .route('users/forgotpassword')
+      .post(
+        bodyValidationMiddleware.verifiBodyFieldsErrors(forgotPasswordSchema),
+        usersController.forgotPassword
+      )
+
+    this.app
+      .route('users/resetpassword/:id/:passwordResetCode')
+      .post(
+        bodyValidationMiddleware.verifiBodyFieldsErrors(resetPasswordSchema),
+        usersController.resetPassword
+      )
+
+    return this.app
   }
 }
