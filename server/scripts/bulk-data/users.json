@@ -4,6 +4,6 @@
         "password": "uchile",
         "firstname": "David Adrián",
         "lastName": "Marambio Salazar",
-        "permissionFlags": 10
+        "role": "admin"
     }
 ]
