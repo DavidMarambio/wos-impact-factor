@@ -1,33 +1,33 @@
-import { Ability, AbilityBuilder } from "@casl/ability";
+import { Ability, AbilityBuilder } from '@casl/ability'
 
 export enum PERMISSION {
-  CREATE = "create",
-  READ = "read",
-  UPDATE = "update",
-  DELETE = "delete"
+  CREATE = 'create',
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete'
 }
 
 export enum MODEL_NAMES {
-  USERS = "Users",
-  PAPERS = "Papers",
-  JOURNALS = "Journals",
-  QUARTILES = "Quartiles",
-  YEARS = "Years"
+  USERS = 'Users',
+  PAPERS = 'Papers',
+  JOURNALS = 'Journals',
+  QUARTILES = 'Quartiles',
+  YEARS = 'Years'
 }
 
 type AppAbilities = [
   PERMISSION,
   MODEL_NAMES
-];
+]
 
-type AppAbility = Ability<AppAbilities>;
+type AppAbility = Ability<AppAbilities>
 
-export function defineAbilitiesForMembers() {
-  const { can, cannot, build } = new AbilityBuilder<AppAbility>(Ability);
+export function defineAbilitiesForMembers () {
+  const { can, cannot, build } = new AbilityBuilder<AppAbility>(Ability)
   cannot(PERMISSION.CREATE, MODEL_NAMES.USERS)
-    .because("Only the admin role can create Users")
+    .because('Only the admin role can create Users')
   cannot(PERMISSION.CREATE, MODEL_NAMES.YEARS)
-    .because("Only the admin role can create a new year")
+    .because('Only the admin role can create a new year')
   can(PERMISSION.CREATE, [
     MODEL_NAMES.PAPERS,
     MODEL_NAMES.JOURNALS,
@@ -52,12 +52,12 @@ export function defineAbilitiesForMembers() {
       MODEL_NAMES.QUARTILES,
       MODEL_NAMES.YEARS
     ])
-    .because("Only the admin role can edit and delete all models")
+    .because('Only the admin role can edit and delete all models')
   return build()
 }
 
-export function defineAbilitiesForAmin() {
-  const { can, build } = new AbilityBuilder<AppAbility>(Ability);
+export function defineAbilitiesForAmin () {
+  const { can, build } = new AbilityBuilder<AppAbility>(Ability)
   can(
     [
       PERMISSION.CREATE,
@@ -73,16 +73,15 @@ export function defineAbilitiesForAmin() {
       MODEL_NAMES.YEARS
     ]
   )
-  return build();
+  return build()
 }
 
-export function defineAbilitiesForGuest() {
-  const { can, build } = new AbilityBuilder<AppAbility>(Ability);
+export function defineAbilitiesForGuest () {
+  const { can, build } = new AbilityBuilder<AppAbility>(Ability)
   can(PERMISSION.READ, [
     MODEL_NAMES.PAPERS,
     MODEL_NAMES.JOURNALS,
     MODEL_NAMES.QUARTILES
   ])
-  return build();
+  return build()
 }
-
