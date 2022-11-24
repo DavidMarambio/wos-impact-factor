@@ -1,57 +1,61 @@
-import { CRUD } from "../../common/interfaces/crud.interface";
-import PapersDao from "../daos/papers.dao";
-import { CreatePaperDto } from "../dto/create.paper.dto";
-import { PatchPaperDto } from "../dto/patch.paper.dto";
-import { PutPaperDto } from "../dto/put.paper.dto";
+import { CRUD } from '../../common/interfaces/crud.interface'
+import PapersDao from '../daos/papers.dao'
+import { CreatePaperDto } from '../dto/create.paper.dto'
+import { PatchPaperDto } from '../dto/patch.paper.dto'
+import { PutPaperDto } from '../dto/put.paper.dto'
 
 class PapersService implements CRUD {
   async create(resource: CreatePaperDto) {
-    return PapersDao.addPaper(resource);
+    return await PapersDao.addPaper(resource)
   }
 
   async deleteById(id: string) {
-    return PapersDao.removePaperById(id);
+    return await PapersDao.removePaperById(id)
   }
 
   async list(limit: number, page: number) {
-    return PapersDao.getPapers(limit, page);
+    return await PapersDao.getPapers(limit, page)
   }
 
   async patchById(id: string, resource: PatchPaperDto) {
-    return PapersDao.updatePaperById(id, resource);
+    return await PapersDao.updatePaperById(id, resource)
   }
 
   async readById(id: string) {
-    return PapersDao.getPaperById(id);
+    return await PapersDao.getPaperById(id)
   }
 
   async putById(id: string, resource: PutPaperDto) {
-    return PapersDao.updatePaperById(id, resource);
+    return await PapersDao.updatePaperById(id, resource)
   }
 
   async getPaperByTitle(title: string) {
-    return PapersDao.getPaperByTitle(title);
+    return await PapersDao.getPaperByTitle(title)
   }
 
   async getPapersByCodeDoi(codeDoi: string) {
-    return PapersDao.getPapersByCodeDoi(codeDoi);
+    return await PapersDao.getPapersByCodeDoi(codeDoi)
   }
 
   async getPapersByCodeWos(codeWos: string) {
-    return PapersDao.getPapersByCodeWos(codeWos);
+    return await PapersDao.getPapersByCodeWos(codeWos)
   }
 
   async getPapersByJournalName(journalName: string) {
-    return PapersDao.getPapersByJournalName(journalName);
+    return await PapersDao.getPapersByJournalName(journalName)
   }
 
   async getPapersByTypePaper(typePaper: string) {
-    return PapersDao.getPapersByTypePaper(typePaper);
+    return await PapersDao.getPapersByTypePaper(typePaper)
   }
 
   async getPapersByYear(year: number) {
-    return PapersDao.getPapersByYear(year);
+    return await PapersDao.getPapersByYear(year)
+  }
+
+  async importPapers(papers: CreatePaperDto[]) {
+    return await PapersDao.insertManyPapers(papers)
   }
 }
 
-export default new PapersService();
+export default new PapersService()

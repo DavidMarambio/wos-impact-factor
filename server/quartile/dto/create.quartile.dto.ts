@@ -1,11 +1,11 @@
 interface Area {
-    name: string
+  name: string
 }
 
 export interface CreateQuartileDto {
-    area: Area
-    year: number
-    ranking: string
-    quartile: string
-    percentile: number
+  area: Area
+  year: number
+  ranking: string
+  quartile: string
+  percentile: number
 }

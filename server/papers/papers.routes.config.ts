@@ -1,22 +1,21 @@
-import express from "express";
-import { body } from "express-validator";
-import jwtMiddleware from "../auth/middleware/jwt.middleware";
-import { CommonRoutesConfig } from "../common/common.routes.config";
-import commonPermissionMiddleware from "../common/middleware/common.permission.middleware";
-import { PermissionFlag } from "../common/middleware/common.permissionflag.enum";
-import papersController from "./controllers/papers.controller";
-import { typePapers } from "../models/Paper";
-import bodyValidationMiddleware from "../common/middleware/body.validation.middleware";
-import papersMiddleware from "./middleware/papers.middleware";
+import express from 'express'
+import { body } from 'express-validator'
+import jwtMiddleware from '../auth/middleware/jwt.middleware'
+import { CommonRoutesConfig } from '../common/common.routes.config'
+import commonPermissionMiddleware from '../common/middleware/common.permission.middleware'
+import papersController from './controllers/papers.controller'
+import { typePapers } from '../models/Paper.model'
+import bodyValidationMiddleware from '../common/middleware/body.validation.middleware'
+import papersMiddleware from './middleware/papers.middleware'
 
-const typePaper = Object.keys(typePapers)
+const typePaper = Object.values(typePapers)
 
 export class PapersRoutes extends CommonRoutesConfig {
-  constructor(app: express.Application) {
-    super(app, "PapersRoutes");
+  constructor (app: express.Application) {
+    super(app, 'PapersRoutes')
   }
 
-  configureRoutes(): express.Application {
+  configureRoutes (): express.Application {
     this.app
       .route('/papers')
       .get(
@@ -25,18 +24,18 @@ export class PapersRoutes extends CommonRoutesConfig {
         papersController.listPapers
       )
       .post(
-        body('year').isInt().notEmpty(),
+        body('year').toInt().isInt().notEmpty(),
         body('codeWos').isAlphanumeric().notEmpty(),
         body('codeDoi').isAlphanumeric().notEmpty(),
         body('typePaper').isIn(typePaper).notEmpty(),
         body('journalName').isString().notEmpty(),
-        body('journalNumber').isInt(),
-        body('journalVolume').isInt(),
+        body('journalNumber').toInt().isInt(),
+        body('journalVolume').toInt().isInt(),
         body('title').isString().notEmpty(),
-        body('chapterPage').isInt(),
-        body('numberOfPage').isInt(),
-        body('initialPage').isInt(),
-        body('endPage').isInt(),
+        body('chapterPage').toInt().isInt(),
+        body('numberOfPage').toInt().isInt(),
+        body('initialPage').toInt().isInt(),
+        body('endPage').toInt().isInt(),
         bodyValidationMiddleware.verifiBodyFieldsErrors,
         commonPermissionMiddleware.roleCanCreatePaper,
         papersMiddleware.validateSamePaperCodeDoiDoesntExist,
@@ -45,7 +44,7 @@ export class PapersRoutes extends CommonRoutesConfig {
         papersController.createPaper
       )
 
-    this.app.param("paperId", papersMiddleware.extractPaperId)
+    this.app.param('paperId', papersMiddleware.extractPaperId)
 
     this.app
       .route('/papers/:paperId')
@@ -63,18 +62,18 @@ export class PapersRoutes extends CommonRoutesConfig {
       )
 
     this.app.put('/papers/:paperId', [
-      body('year').isInt().notEmpty(),
+      body('year').toInt().isInt().notEmpty(),
       body('codeWos').isAlphanumeric().notEmpty(),
       body('codeDoi').isAlphanumeric().notEmpty(),
       body('typePaper').isIn(typePaper).notEmpty(),
       body('journalName').isString().notEmpty(),
-      body('journalNumber').isInt(),
-      body('journalVolume').isInt(),
+      body('journalNumber').toInt().isInt(),
+      body('journalVolume').toInt().isInt(),
       body('title').isString().notEmpty(),
-      body('chapterPage').isInt(),
-      body('numberOfPage').isInt(),
-      body('initialPage').isInt(),
-      body('endPage').isInt(),
+      body('chapterPage').toInt().isInt(),
+      body('numberOfPage').toInt().isInt(),
+      body('initialPage').toInt().isInt(),
+      body('endPage').toInt().isInt(),
       bodyValidationMiddleware.verifiBodyFieldsErrors,
       papersMiddleware.validateSameCodeDoiBelongToSamePaper,
       papersMiddleware.validateSameCodeWosBelongToSamePaper,
@@ -84,18 +83,18 @@ export class PapersRoutes extends CommonRoutesConfig {
     ])
 
     this.app.patch('/papers/:paperId', [
-      body('year').isInt().notEmpty().optional(),
+      body('year').toInt().isInt().notEmpty().optional(),
       body('codeWos').isAlphanumeric().notEmpty().optional(),
       body('codeDoi').isAlphanumeric().notEmpty().optional(),
       body('typePaper').isIn(typePaper).notEmpty().optional(),
       body('journalName').isString().notEmpty().optional(),
-      body('journalNumber').isInt().optional(),
-      body('journalVolume').isInt().optional(),
+      body('journalNumber').toInt().isInt().optional(),
+      body('journalVolume').toInt().isInt().optional(),
       body('title').isString().notEmpty().optional(),
-      body('chapterPage').isInt().optional(),
-      body('numberOfPage').isInt().optional(),
-      body('initialPage').isInt().optional(),
-      body('endPage').isInt().optional(),
+      body('chapterPage').toInt().isInt().optional(),
+      body('numberOfPage').toInt().isInt().optional(),
+      body('initialPage').toInt().isInt().optional(),
+      body('endPage').toInt().isInt().optional(),
       bodyValidationMiddleware.verifiBodyFieldsErrors,
       papersMiddleware.validatePatchPaperCodeDoi,
       papersMiddleware.validatePatchPaperCodeWos,
@@ -104,6 +103,29 @@ export class PapersRoutes extends CommonRoutesConfig {
       papersController.patch
     ])
 
-    return this.app;
+    this.app
+      .route('/papers/massive/import')
+      .post(
+        body('papers.*.year').toInt().isInt().notEmpty(),
+        body('papers.*.codeWos').isAlphanumeric().notEmpty(),
+        body('papers.*.codeDoi').isAlphanumeric().notEmpty(),
+        body('papers.*.typePaper').isIn(typePaper).notEmpty(),
+        body('papers.*.journalName').isString().notEmpty(),
+        body('papers.*.journalNumber').toInt().isInt(),
+        body('papers.*.journalVolume').toInt().isInt(),
+        body('papers.*.title').isString().notEmpty(),
+        body('papers.*.chapterPage').toInt().isInt(),
+        body('papers.*.numberOfPage').toInt().isInt(),
+        body('papers.*.initialPage').toInt().isInt(),
+        body('papers.*.endPage').toInt().isInt(),
+        bodyValidationMiddleware.verifiBodyFieldsErrors,
+        commonPermissionMiddleware.roleCanCreatePaper,
+        papersMiddleware.validateSamePaperCodeDoiDoesntExist,
+        papersMiddleware.validateSamePaperCodeWosDoesntExist,
+        papersMiddleware.validateSamePaperTitleDoesntExist,
+        papersController.createPaper
+      )
+
+    return this.app
   }
 }

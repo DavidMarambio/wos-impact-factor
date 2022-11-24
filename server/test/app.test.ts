@@ -1,7 +1,7 @@
-import { expect } from "chai";
+import { expect } from 'chai'
 
-describe("Index Test", function () {
-  it("should always pass", function () {
-    expect(true).to.equal(true);
-  });
-});
+describe('Index Test', function () {
+  it('should always pass', function () {
+    expect(true).to.equal(true)
+  })
+})

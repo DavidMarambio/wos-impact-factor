@@ -1,5 +1,5 @@
-import { PutPaperDto } from "./put.paper.dto";
+import { PutPaperDto } from './put.paper.dto'
 
 export interface PatchPaperDto extends Partial<PutPaperDto> {
-    
+
 }
