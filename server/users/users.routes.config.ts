@@ -61,7 +61,7 @@ export class UsersRoutes extends CommonRoutesConfig {
       usersController.patch
     ])
 
-    this.app.put('users/:userId/role/:role', [
+    this.app.put('/users/:userId/role/:role', [
       jwtMiddleware.validJwtNeeded,
       commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
       commonPermissionMiddleware.roleCanUpdateUser,
@@ -69,21 +69,21 @@ export class UsersRoutes extends CommonRoutesConfig {
     ])
 
     this.app
-      .route('users/verify/:id/:verificationCode')
+      .route('/users/verify/:id/:verificationCode')
       .post(
         bodyValidationMiddleware.verifiBodyFieldsErrors(verifyUserSchema),
         usersController.verifyUser
       )
 
     this.app
-      .route('users/forgotpassword')
+      .route('/users/forgotpassword')
       .post(
         bodyValidationMiddleware.verifiBodyFieldsErrors(forgotPasswordSchema),
         usersController.forgotPassword
       )
 
     this.app
-      .route('users/resetpassword/:id/:passwordResetCode')
+      .route('/users/resetpassword/:id/:passwordResetCode')
       .post(
         bodyValidationMiddleware.verifiBodyFieldsErrors(resetPasswordSchema),
         usersController.resetPassword
