@@ -5,6 +5,7 @@ import { InputSessionDto } from '../dto/input.session.dto'
 import userModel from '../../models/User.model'
 import { get } from 'lodash'
 import { verifyJwt } from '../../common/utils/jwt'
+import usersService from '../../users/services/users.service'
 
 const log: debug.IDebugger = debug('app:sessions-controller')
 
@@ -17,6 +18,19 @@ class SessionController {
     async createSession(req: express.Request, res: express.Response) {
         const userId = await sessionService.create(req.body)
         res.status(201).send({ id: userId })
+    }
+
+    async closeSession(req: express.Request, res: express.Response) {
+        try {
+            const user = await usersService.getUserByEmail(req.body.email)
+            if (user) {
+                const response = await sessionService.deleteByUser(user._id.toString())
+                return res.status(204).send({ response })
+            }
+            return res.status(400).send({ message: "User is not registered" })
+        } catch (error) {
+            res.status(400).send({ message: error })
+        }
     }
 
     async createSessionHandler(req: express.Request<{}, {}, InputSessionDto>, res: express.Response) {

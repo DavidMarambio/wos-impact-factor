@@ -24,6 +24,14 @@ class SessionsDao {
   async getSessionByUser(session: string) {
     return await sessionModel.findOne({ user: session }).exec()
   }
+
+  async removeSessionById(id: string) {
+    return await sessionModel.findOneAndRemove({ _id: id }).exec()
+  }
+
+  async removeSessionsByUser(session: string) {
+    return await sessionModel.deleteMany({ user: session }).exec()
+  }
 }
 
 export default new SessionsDao()

@@ -17,7 +17,7 @@ class JwtMiddleware {
           res.locals.user = verifyJwt(authorization[1].toString(), "accessTokenPublicKey")
           return res.locals.user._id ?
             next() :
-            res.status(403).send()
+            res.status(403).send({ message: "Not verify" })
         }
       } catch (error) {
         return res.status(403).send({ error: error })

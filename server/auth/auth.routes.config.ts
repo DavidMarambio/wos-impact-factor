@@ -24,6 +24,14 @@ export class AuthRoutes extends CommonRoutesConfig {
       sessionController.refreshAccessTokenHandler
     )])
 
+    this.app
+      .route('/auth/sign-off')
+      .post(
+        body('email').isEmail(),
+        jwtMiddleware.validJwtNeeded,
+        sessionController.closeSession
+      )
+
     return this.app
   }
 }

@@ -29,9 +29,16 @@ class SessionService implements CRUD {
         return signJwt(payload, "accessTokenPrivateKey", { expiresIn: "15m" })
     }
 
+    async deleteById(id: string) {
+        return await sessionsDao.removeSessionById(id)
+    }
+
+    async deleteByUser(idUser: string) {
+        return await sessionsDao.removeSessionsByUser(idUser)
+    }
+
     list: (limit: number, page: number) => Promise<any>;
     putById: (id: string, resource: any) => Promise<any>;
-    deleteById: (id: string) => Promise<any>;
     patchById: (id: string, resource: any) => Promise<any>;
 
 }
