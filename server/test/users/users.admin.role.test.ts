@@ -228,6 +228,14 @@ describe('users and auth endpoints for admin role', function () {
           .send()
         expect(res.status).to.equal(204)
       })
+
+      it('should allow a SIGN OFF from /auth/sign-off', async function () {
+        const res = await request
+          .post(`/auth/sign-off`)
+          .set({ "authorization": `Bearer ${accessToken}` })
+          .send({ email: userAdmin.email })
+        expect(res.status).to.equal(204)
+      })
     })
 
   })
