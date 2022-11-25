@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '../.env' })
+
 const PORT_HTTP = process.env.PORT || 3000
 const USER = process.env.DB_USER || 'dev'
 const PASS = process.env.DB_PASS || 'dev'
@@ -19,10 +22,10 @@ export default {
     accessTokenTtl: "15m",
     refreshTokenTtl: "1y",
     smtp: {
-        user: "maryse.reilly89@ethereal.email",
-        pass: "dTybSvCbZNR4yVYyPQ",
-        host: "smtp.ethereal.email",
-        port: 587,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
         secure: false,
     },
 };

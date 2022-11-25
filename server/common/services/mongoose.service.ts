@@ -1,8 +1,10 @@
 import mongoose from 'mongoose'
+import config from 'config'
 import debug from 'debug'
 
 const log: debug.IDebugger = debug('app:mongoose-service')
 class MongooseService {
+  private stringConnection
   private count = 0
   private readonly mongooseOptions = {
     useNewUrlParser: true,
@@ -10,23 +12,12 @@ class MongooseService {
     serverSelectionTimeoutMS: 5000
   }
 
-  private readonly USER = process.env.DB_USER || 'dev'
-  private readonly PASS = process.env.DB_PASS || 'dev'
-  private readonly HOST = process.env.DB_HOST || 'localhost'
-  private readonly PORT = process.env.DB_PORT || 27017
-  private readonly DB = process.env.DB_NAME || 'paper-wos-dev'
-  private readonly stringConnection
-
-  constructor () {
-    if (this.USER === 'dev') {
-      this.stringConnection = `mongodb://${this.HOST}:${this.PORT}/${this.DB}`
-    } else {
-      this.stringConnection = `mongodb://${this.USER}:${this.PASS}@${this.HOST}:${this.PORT}/${this.DB}`
-    }
+  constructor() {
+    this.stringConnection = config.get<string>('dbUri')
     this.connectWithRetry()
   }
 
-  getMongoose () {
+  getMongoose() {
     return mongoose
   }
 
