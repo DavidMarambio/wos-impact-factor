@@ -39,7 +39,7 @@ async () => {
       const found = await User.getUserByEmail(user.email)
       if (found != null) {
         spinner.info(`User ${user.email} already exist. Updating...`)
-        await User.patchById(found._id, user)
+        await User.patchById(found._id.toString(), user)
         spinner.succeed(`Updated user ${user.email}`)
         continue
       }
