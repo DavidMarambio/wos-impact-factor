@@ -45,28 +45,34 @@ export class UsersRoutes extends CommonRoutesConfig {
         usersController.removeUser
       )
 
-    this.app.put('/users/:userId', [
-      jwtMiddleware.validJwtNeeded,
-      bodyValidationMiddleware.verifiBodyFieldsErrors(updateUserSchema),
-      usersMiddleware.validateSameEmailBelongToSameUser,
-      commonPermissionMiddleware.roleCanUpdateUser,
-      usersController.put
-    ])
+    this.app
+      .route('/users/:userId')
+      .put(
+        jwtMiddleware.validJwtNeeded,
+        bodyValidationMiddleware.verifiBodyFieldsErrors(updateUserSchema),
+        usersMiddleware.validateSameEmailBelongToSameUser,
+        commonPermissionMiddleware.roleCanUpdateUser,
+        usersController.put
+      )
 
-    this.app.patch('/users/:userId', [
-      jwtMiddleware.validJwtNeeded,
-      bodyValidationMiddleware.verifiBodyFieldsErrors(updateUserSchema),
-      usersMiddleware.validatePatchEmail,
-      commonPermissionMiddleware.roleCanUpdateUser,
-      usersController.patch
-    ])
+    this.app
+      .route('/users/:userId')
+      .patch(
+        jwtMiddleware.validJwtNeeded,
+        bodyValidationMiddleware.verifiBodyFieldsErrors(updateUserSchema),
+        usersMiddleware.validatePatchEmail,
+        commonPermissionMiddleware.roleCanUpdateUser,
+        usersController.patch
+      )
 
-    this.app.put('/users/:userId/role/:role', [
-      jwtMiddleware.validJwtNeeded,
-      commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
-      commonPermissionMiddleware.roleCanUpdateUser,
-      usersController.updateRole
-    ])
+    this.app
+      .route('/users/:userId/role/:role')
+      .put(
+        jwtMiddleware.validJwtNeeded,
+        commonPermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        commonPermissionMiddleware.roleCanUpdateUser,
+        usersController.updateRole
+      )
 
     this.app
       .route('/users/verify/:id/:verificationCode')
@@ -76,7 +82,7 @@ export class UsersRoutes extends CommonRoutesConfig {
       )
 
     this.app
-      .route('/users/forgotpassword')
+      .route('/users/forgotpassword/:email')
       .post(
         bodyValidationMiddleware.verifiBodyFieldsErrors(forgotPasswordSchema),
         usersController.forgotPassword

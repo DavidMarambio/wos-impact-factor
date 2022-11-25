@@ -1,6 +1,7 @@
 import express from 'express'
 import usersService from '../services/users.service'
 import debug from 'debug'
+import { Roles } from '../../models/User.model'
 
 const log: debug.IDebugger = debug('app:users-controller')
 class UsersMiddleware {
@@ -34,12 +35,10 @@ class UsersMiddleware {
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (res.locals.user._id === req.params.userId) {
+    if (res.locals.user.role === Roles.ADMIN || res.locals.user._id === req.params.userId) {
       next()
     } else {
-      res.status(400).send({
-        error: 'Invalid user'
-      })
+      res.status(400).send({ error: 'Invalid user' })
     }
   }
 
@@ -63,7 +62,6 @@ class UsersMiddleware {
   ) {
     const user = await usersService.readById(req.params.userId)
     if (user != null) {
-      res.locals.user = user
       next()
     } else {
       res.status(404).send({ error: `User ${req.params.userId} not found` })

@@ -24,14 +24,18 @@ class UsersController {
       const userId = await usersService.create(req.body)
       const user = await usersService.readById(userId.toString())
       if (user) {
-        await sendEmail({
+        const messageEmail = await sendEmail({
           to: user.email,
           from: "test@example.com",
           subject: "Verify your email",
           text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
         });
 
-        res.status(201).send({ id: userId, message: "User successfully created" })
+        res.status(201).send({
+          id: userId,
+          verificationCode: user.verificationCode,
+          message: "User successfully created"
+        })
       }
     } catch (error) {
       return res.status(500).send({ message: error });
@@ -57,10 +61,14 @@ class UsersController {
   }
 
   async updateRole(req: express.Request, res: express.Response) {
-    const roleEnum = req.params.role as Roles;
-    const patchUserDto: PatchUserDto = { role: roleEnum }
-    log(await usersService.patchById(req.body.id, patchUserDto))
-    res.status(204).send()
+    try {
+      const roleEnum = req.params.role as Roles;
+      const patchUserDto: PatchUserDto = { role: roleEnum }
+      const updateUser = await usersService.patchById(req.params.userId, patchUserDto)
+      res.status(204).send(updateUser)
+    } catch (error) {
+      res.status(400).send({ message: error })
+    }
   }
 
   async verifyUser(req: express.Request<VerifyUserInput>, res: express.Response) {
@@ -72,18 +80,18 @@ class UsersController {
     if (user.verificationCode === verificationCode) {
       user.verified = true;
       await user.save();
-      return res.send("User successfully verified");
+      return res.status(200).send("User successfully verified");
     }
-    return res.send("Could not verify user");
+    return res.status(401).send("Could not verify user");
   }
 
-  async forgotPassword(req: express.Request<{}, {}, ForgotPasswordInput>, res: express.Response) {
+  async forgotPassword(req: express.Request<ForgotPasswordInput>, res: express.Response) {
     const message =
       "If a user with that email is registered you will receive a password reset email";
-    const { email } = req.body;
+    const email = req.params.email;
     const user = await usersService.getUserByEmail(email);
-    if (!user) return res.send(message)
-    if (!user.verified) return res.send("User is not verified");
+    if (!user) return res.status(400).send({ message: "User is not register" })
+    if (!user.verified) return res.status(400).send({ message: "User is not verified" });
     const passwordResetCode = randomString(15);
     user.passwordResetCode = passwordResetCode;
     await user.save();
@@ -91,9 +99,9 @@ class UsersController {
       to: user.email,
       from: "test@example.com",
       subject: "Reset your password",
-      text: `Password reset code: ${passwordResetCode}. Id ${user._id}`,
+      text: `Password reset code: ${passwordResetCode}. Id ${user._id.toString()}`,
     });
-    return res.send(message);
+    return res.status(200).send({ passwordResetCode: passwordResetCode, message: message });
   }
 
   async resetPassword(
@@ -109,7 +117,7 @@ class UsersController {
     user.passwordResetCode = null;
     user.password = password;
     await user.save();
-    return res.send("Successfully updated password");
+    return res.status(200).send("Successfully updated password");
   }
 
 }

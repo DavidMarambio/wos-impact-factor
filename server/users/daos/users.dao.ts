@@ -32,8 +32,8 @@ class UsersDao {
     return await userModel.findOne({ _id: userId }).exec()
   }
 
-  async getUserByEmail(email: string) {
-    return await userModel.findOne({ email }).exec()
+  async getUserByEmail(mail: string) {
+    return await userModel.findOne({ email: mail }).exec()
   }
 
   async updateUserById(userId: string, userFields: PatchUserDto | PutUserDto) {

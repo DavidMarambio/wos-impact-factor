@@ -28,7 +28,7 @@ async function sendEmail(payload: SendMailOptions) {
             return;
         }
 
-        console.log({ message: `Preview URL: ${nodemailer.getTestMessageUrl(info)}` })
+        return `Preview URL: ${nodemailer.getTestMessageUrl(info)}`
     });
 }
 

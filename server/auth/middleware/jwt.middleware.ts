@@ -14,8 +14,10 @@ class JwtMiddleware {
         if (authorization[0] !== 'Bearer') {
           return res.status(401).send()
         } else {
-          res.locals.jwt = verifyJwt(authorization[1].toString(), "accessTokenPublicKey")
-          return next()
+          res.locals.user = verifyJwt(authorization[1].toString(), "accessTokenPublicKey")
+          return res.locals.user._id ?
+            next() :
+            res.status(403).send()
         }
       } catch (error) {
         return res.status(403).send({ error: error })

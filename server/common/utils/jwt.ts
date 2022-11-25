@@ -28,7 +28,7 @@ export function verifyJwt<T>(
         const decoded = jwt.verify(token, publicKey) as T;
         return decoded;
     } catch (e) {
-        console.log({ message: "Token expired" });
+        //console.log({ message: "Token expired" });
         return null
     }
 }

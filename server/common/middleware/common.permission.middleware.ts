@@ -10,7 +10,7 @@ const log: debug.IDebugger = debug('app:common-permission-middleware')
 ForbiddenError.setDefaultMessage(error => `You are not allowed to ${error.action} on ${error.subjectType}`)
 
 class CommonPermissionMiddleware {
-  rolesRequired (requiredRoles: Roles) {
+  rolesRequired(requiredRoles: Roles) {
     return (
       _req: express.Request,
       res: express.Response,
@@ -29,7 +29,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanCreateUser (
+  async roleCanCreateUser(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -45,11 +45,11 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
-  async roleCanCreatePaper (
+  async roleCanCreatePaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -69,7 +69,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanCreateJournal (
+  async roleCanCreateJournal(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -89,7 +89,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanCreateQuartile (
+  async roleCanCreateQuartile(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -109,7 +109,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanCreateYear (
+  async roleCanCreateYear(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -129,7 +129,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanReadUser (
+  async roleCanReadUser(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -149,7 +149,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanReadPaper (
+  async roleCanReadPaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -169,7 +169,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanReadJournal (
+  async roleCanReadJournal(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -189,7 +189,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanReadQuartile (
+  async roleCanReadQuartile(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -209,7 +209,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanReadYear (
+  async roleCanReadYear(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -229,7 +229,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanUpdateUser (
+  async roleCanUpdateUser(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -249,7 +249,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanUpdatePaper (
+  async roleCanUpdatePaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -269,7 +269,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanUpdateJournal (
+  async roleCanUpdateJournal(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -289,7 +289,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanUpdateQuartile (
+  async roleCanUpdateQuartile(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -309,7 +309,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanUpdateYear (
+  async roleCanUpdateYear(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -329,7 +329,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanDeleteUser (
+  async roleCanDeleteUser(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -349,7 +349,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanDeletePaper (
+  async roleCanDeletePaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -369,7 +369,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanDeleteJournal (
+  async roleCanDeleteJournal(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -389,7 +389,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanDeleteQuartile (
+  async roleCanDeleteQuartile(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -409,7 +409,7 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async roleCanDeleteYear (
+  async roleCanDeleteYear(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -429,12 +429,12 @@ class CommonPermissionMiddleware {
     }
   }
 
-  async onlySameUserOrAdminCanDoThisAction (
+  async onlySameUserOrAdminCanDoThisAction(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    const userRole = res.locals.jwt.role
+    const userRole = res.locals.user.role
     if (
       req.params &&
       req.params.userId &&
@@ -442,10 +442,10 @@ class CommonPermissionMiddleware {
     ) {
       return next()
     } else {
-      if (userRole === userRole.ADMIN) {
+      if (userRole === Roles.ADMIN) {
         return next()
       } else {
-        res.status(403).send()
+        res.status(403).send({message: "You can't change the permission role"})
       }
     }
   }

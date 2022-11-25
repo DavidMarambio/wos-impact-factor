@@ -24,13 +24,11 @@ class SessionController {
         const { email, password } = req.body
         try {
             const user = await userModel.findOne({ email }).exec()
-            console.log(user)
             if (user) {
                 if (!user.verified) return res.status(400).send("Please verify your email")
                 const isValid = await user.validatePassword(password)
                 if (!isValid) return res.status(400).send(message)
                 const accessToken = await sessionService.signAccessToken(user)
-                console.log(user, user._id, user._id.toString())
                 const refreshToken = await sessionService.signRefreshToken(user._id.toString())
                 return res.status(200).send({ accessToken, refreshToken })
             } else {
