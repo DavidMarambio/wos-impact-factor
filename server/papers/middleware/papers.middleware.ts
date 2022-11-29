@@ -4,116 +4,86 @@ import debug from 'debug'
 
 const log: debug.IDebugger = debug('app:papers-middleware')
 class PapersMiddleware {
-  async validateRequiredPaperBodyFields (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) {
-    if (req.body && req.body.year && req.body.codeWos && req.body.codeDoi && req.body.journalName && req.body.title) {
-      next()
-    } else {
-      const fields = [{ year: req.body.year, codeWos: req.body.codeWos, codeDoi: req.body.codeDoi, journalName: req.body.journalName, title: req.body.title }]
-      fields.forEach((field, index) => {
-        switch (field) {
-          case null:
-            res.status(400).send({ error: `Missing required field ${index}` })
-            break
-        }
-      })
-      res
-        .status(400)
-        .send({ error: 'Missing required fields' })
-    }
-  }
 
-  async validateSamePaperTitleDoesntExist (
+  async validateSamePaperTitleDoesntExist(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const paper = await papersService.getPaperByTitle(req.body.title)
     if (paper != null) {
-      res.status(400).send({
-        error: 'Paper title already exists'
-      })
+      res.status(400).send({ error: 'Paper title already exists' })
     } else {
       next()
     }
   }
 
-  async validateSamePaperCodeWosDoesntExist (
+  async validateSamePaperCodeWosDoesntExist(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const paper = await papersService.getPapersByCodeWos(req.body.codeWos)
     if (paper != null) {
-      res.status(400).send({
-        error: 'Paper code WoS already exists'
-      })
+      res.status(400).send({ error: 'Paper code WoS already exists' })
     } else {
       next()
     }
   }
 
-  async validateSamePaperCodeDoiDoesntExist (
+  async validateSamePaperCodeDoiDoesntExist(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const paper = await papersService.getPapersByCodeDoi(req.body.codeDoi)
     if (paper != null) {
-      res.status(400).send({
-        error: 'Paper code DOI already exists'
-      })
+      res.status(400).send({ error: 'Paper code DOI already exists' })
     } else {
       next()
     }
   }
 
-  async validateSameTitleBelongToSamePaper (
+  async validateSameTitleBelongToSamePaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (res.locals.paper._id === req.params.paperId) {
+    const paper = await papersService.readById(req.params.paperId)
+    if (paper && paper.title === req.body.title) {
       next()
     } else {
-      res.status(400).send({
-        error: 'Invalid title'
-      })
+      res.status(400).send({ error: 'Invalid title' })
     }
   }
 
-  async validateSameCodeWosBelongToSamePaper (
+  async validateSameCodeWosBelongToSamePaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (res.locals.paper._id === req.params.paperId) {
+    const paper = await papersService.readById(req.params.paperId)
+    if (paper && paper.codeWos === req.body.codeWos) {
       next()
     } else {
-      res.status(400).send({
-        error: 'Invalid Code Wos'
-      })
+      res.status(400).send({ error: 'Invalid Code Wos' })
     }
   }
 
-  async validateSameCodeDoiBelongToSamePaper (
+  async validateSameCodeDoiBelongToSamePaper(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (res.locals.paper._id === req.params.paperId) {
+    const paper = await papersService.readById(req.params.paperId)
+    if (paper && paper.codeDoi === req.body.codeDoi) {
       next()
     } else {
-      res.status(400).send({
-        error: 'Invalid Code DOI'
-      })
+      res.status(400).send({ error: 'Invalid Code DOI' })
     }
   }
 
-  async validatePatchPaperTitle (
+  async validatePatchPaperTitle(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -126,7 +96,7 @@ class PapersMiddleware {
     }
   }
 
-  async validatePatchPaperCodeWos (
+  async validatePatchPaperCodeWos(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -139,7 +109,7 @@ class PapersMiddleware {
     }
   }
 
-  async validatePatchPaperCodeDoi (
+  async validatePatchPaperCodeDoi(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -152,13 +122,13 @@ class PapersMiddleware {
     }
   }
 
-  async validatePaperExists (
+  async validatePaperExists(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const paper = await papersService.readById(req.params.paperId)
-    if (paper != null) {
+    if (paper !== null) {
       res.locals.paper = paper
       next()
     } else {
@@ -166,7 +136,7 @@ class PapersMiddleware {
     }
   }
 
-  async extractPaperId (
+  async extractPaperId(
     req: express.Request,
     _res: express.Response,
     next: express.NextFunction

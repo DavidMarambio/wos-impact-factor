@@ -16,7 +16,7 @@ class PapersDao {
   async addPaper(paperFields: CreatePaperDto) {
     const paper = new paperModel({ ...paperFields })
     await paper.save()
-    return paper._id
+    return paper._id.toString()
   }
 
   async getPapers(limit = 25, page = 0) {
@@ -27,31 +27,31 @@ class PapersDao {
   }
 
   async getPapersByYear(year: number, limit = 25, page = 0) {
-    return await paperModel.find({ year })
+    return await paperModel.find({ year: year })
       .limit(limit)
       .skip(limit * page)
       .exec()
   }
 
   async getPapersByCodeWos(codeWos: string) {
-    return await paperModel.findOne({ codeWos })
+    return await paperModel.findOne({ codeWos: codeWos })
       .exec()
   }
 
   async getPapersByCodeDoi(codeDoi: string) {
-    return await paperModel.findOne({ codeDoi })
+    return await paperModel.findOne({ codeDoi: codeDoi })
       .exec()
   }
 
   async getPapersByTypePaper(typePaper: string, limit = 25, page = 0) {
-    return await paperModel.find({ typePaper })
+    return await paperModel.find({ typePaper: typePaper })
       .limit(limit)
       .skip(limit * page)
       .exec()
   }
 
   async getPapersByJournalName(journalName: string) {
-    return await paperModel.findOne({ journalName })
+    return await paperModel.findOne({ journalName: journalName })
       .exec()
   }
 
@@ -61,7 +61,7 @@ class PapersDao {
 
   async getPaperByTitle(title: string) {
     try {
-      return await paperModel.findOne({ title }).exec()
+      return await paperModel.findOne({ title: title }).exec()
     } catch (error) {
       if (error instanceof Error) {
         console.log({ message: error.message })
@@ -102,6 +102,7 @@ class PapersDao {
       return await paperModel.insertMany(papers)
     } catch (error) {
       if (error instanceof Error) {
+        console.log(papers)
         console.log({ message: error.message })
       }
     }

@@ -10,7 +10,7 @@ class PapersController {
   }
 
   async getPaperById(req: express.Request, res: express.Response) {
-    const paper = await papersService.readById(req.body.paperId)
+    const paper = await papersService.readById(req.params.paperId)
     res.status(200).send(paper)
   }
 
@@ -36,10 +36,12 @@ class PapersController {
 
   async importPapers(req: express.Request, res: express.Response) {
     try {
-      await papersService.importPapers(req.body.papers)
-      res.status(204).send()
+      const papers = await papersService.importPapers(req.body)
+      papers ?
+        res.status(204).send(papers) :
+        res.status(400).send({ message: "Error on Massive import" })
     } catch (error) {
-      console.log(error)
+      res.status(400).send({ Error: error })
     }
   }
 }
