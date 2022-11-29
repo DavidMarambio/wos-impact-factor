@@ -46,9 +46,11 @@ class SessionController {
                 const refreshToken = await sessionService.signRefreshToken(user._id.toString())
                 return res.status(200).send({ accessToken, refreshToken })
             } else {
+                console.log("No se encuentra el usuario")
                 return res.status(400).send(message)
             }
         } catch (error) {
+            console.log(error)
             res.status(400).send({ message: error, body: req.body })
         }
     }

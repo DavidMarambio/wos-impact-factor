@@ -25,9 +25,9 @@ class UsersMiddleware {
     next: express.NextFunction
   ) {
     const user = await usersService.getUserByEmail(req.body.email)
-    user != null ?
-      res.status(400).send({ error: 'User email already exists' }) :
-      next()
+    user === null ?
+      next() :
+      res.status(400).send({ error: 'User email already exists' })
   }
 
   async validateSameEmailBelongToSameUser(

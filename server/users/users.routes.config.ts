@@ -21,9 +21,12 @@ export class UsersRoutes extends CommonRoutesConfig {
         commonPermissionMiddleware.roleCanReadUser,
         usersController.listUsers
       )
+
+    this.app
+      .route('/users')
       .post(
         bodyValidationMiddleware.verifiBodyFieldsErrors(createUserSchema),
-        commonPermissionMiddleware.roleCanCreateUser,
+        // commonPermissionMiddleware.roleCanCreateUser,
         usersMiddleware.validateSameEmailDoesntExist,
         usersController.createUser
       )
