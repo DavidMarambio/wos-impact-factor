@@ -17,7 +17,7 @@ class BodyValidationMiddleware {
           })
           next()
         } catch (e: any) {
-          return res.status(400).send({ message: e.errors })
+          return res.status(404).send({ message: e.errors })
         }
       };
 
