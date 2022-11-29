@@ -1,22 +1,33 @@
-import * as dotenv from 'dotenv'
-dotenv.config({ path: '../.env' })
+import { config as configDotenv } from 'dotenv'
+import { resolve } from 'path'
 
-const PORT_HTTP = process.env.PORT || 3000
-const USER = process.env.DB_USER || 'dev'
-const PASS = process.env.DB_PASS || 'dev'
-const HOST = process.env.DB_HOST || 'localhost'
-const PORT = process.env.DB_PORT || 27017
-const DB = process.env.DB_NAME || 'paper-wos-dev'
 let stringConnection: string
-
-if (USER === 'dev') {
-    stringConnection = `mongodb://${HOST}:${PORT}/${DB}`
-} else {
-    stringConnection = `mongodb://${USER}:${PASS}@${HOST}:${PORT}/${DB}`
+switch (process.env.NODE_ENV) {
+    case "development":
+        console.log("Environment is 'development'")
+        configDotenv({
+            path: resolve(__dirname, "../.env.development")
+        })
+        stringConnection = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+        break
+    case "test":
+        configDotenv({
+            path: resolve(__dirname, "../.env.test")
+        })
+        stringConnection = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+        break
+    case "production":
+        // configDotenv({
+        //     path: resolve(__dirname, "../.env.production")
+        // })
+        stringConnection = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+        break
+    default:
+        throw new Error(`'NODE_ENV' ${process.env.NODE_ENV} is not handled!`)
 }
 
 export default {
-    port: PORT_HTTP,
+    port: process.env.PORT,
     dbUri: stringConnection,
     logLevel: "info",
     accessTokenTtl: "15m",
