@@ -5,11 +5,11 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "dev": "ts-node-dev --respawn app.ts",
+    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn app.ts",
     "build": "tsc",
     "start": "node --unhandled-rejections=strict ./dist/app.js",
     "debug": "cross-env DEBUG=* && npm run start",
-    "test": "mocha -r ts-node/register 'test/**/*.test.ts' --unhandled-rejections=strict",
+    "test": "cross-env NODE_ENV=test mocha -r ts-node/register",
     "test-debug": "cross-env DEBUG=* && npm test",
     "lint": "ts-standard"
   },
