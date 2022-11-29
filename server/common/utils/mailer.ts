@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 async function sendEmail(payload: SendMailOptions) {
     transporter.sendMail(payload, (err, info) => {
         if (err) {
-            console.log({ message: "Error sending email", error: err })
+            //console.log({ message: "Error sending email", error: err })
             return;
         }
 
