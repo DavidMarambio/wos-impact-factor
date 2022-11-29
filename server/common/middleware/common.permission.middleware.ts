@@ -65,7 +65,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -85,7 +85,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -105,7 +105,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -125,7 +125,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -145,7 +145,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -165,7 +165,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -185,7 +185,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -205,7 +205,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -225,7 +225,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -245,7 +245,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -265,7 +265,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -285,7 +285,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -305,7 +305,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -325,7 +325,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -345,7 +345,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -365,7 +365,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -385,7 +385,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -405,7 +405,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
@@ -425,7 +425,7 @@ class CommonPermissionMiddleware {
         return res.status(403).send()
       }
     } catch (error) {
-      console.log({ message: error })
+      res.status(403).send({ message: error })
     }
   }
 
