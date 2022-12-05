@@ -183,6 +183,14 @@ describe('PAPERS endpoints for admin role', function () {
             expect(res.status).to.equal(204)
         })
 
+        it('should allow a DELETE from /users/:userId', async function () {
+            const res = await request
+                .delete(`/users/${adminUserId}`)
+                .auth(accessToken, { type: 'bearer' })
+                .send()
+            expect(res.status).to.equal(204)
+        })
+
     })
 
 })
