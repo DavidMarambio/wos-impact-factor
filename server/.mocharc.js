@@ -4,7 +4,7 @@
 // If you need conditional logic, you might want to use this type of config.
 // Otherwise, JSON or YAML is recommended.
 module.exports = {
-  require: "test/hooks.ts",
+  require: ["ts-node/register", "test/hooks.ts"],
   exit: true,
   bail: true,
   diff: true,
