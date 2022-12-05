@@ -1,6 +1,5 @@
-import { prop, Ref, modelOptions } from '@typegoose/typegoose'
+import { prop, modelOptions, ReturnModelType, getModelForClass } from '@typegoose/typegoose'
 import mongoose from 'mongoose'
-import { Quartile } from './Quartile.model'
 
 @modelOptions({
   schemaOptions: {
@@ -29,14 +28,7 @@ export class Journal {
   @prop({ required: true, uppercase: true, trim: true })
   public name: string
 
-  @prop({
-    ref: () => Quartile,
-    localField: "_id",
-    foreignField: "journal",
-    justOne: false
-  })
-  public quartile?: Array<Ref<Quartile>>
-
   @prop({ type: () => ImpactFactor })
   public impactFactor?: ImpactFactor[]
 }
+export const journalModel: ReturnModelType<typeof Journal> = getModelForClass(Journal)
