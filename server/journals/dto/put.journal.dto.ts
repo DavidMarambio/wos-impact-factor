@@ -8,6 +8,6 @@ interface ImpactFactor {
 export interface PutJournalDto {
   wosId: string
   name: string
-  quartile?: CreateQuartileDto[]
-  impactFactor?: ImpactFactor[]
+  quartile?: Array<CreateQuartileDto>
+  impactFactor?: Array<ImpactFactor>
 }

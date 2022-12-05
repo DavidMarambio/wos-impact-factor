@@ -6,13 +6,14 @@ import commonPermissionMiddleware from '../common/middleware/common.permission.m
 import journalsController from './controllers/journals.controller'
 import bodyValidationMiddleware from '../common/middleware/body.validation.middleware'
 import journalsMiddleware from './middleware/journals.middleware'
+import { createJournalSchema, updateJournalSchema } from './dto/create.journal.dto'
 
 export class JournalsRoutes extends CommonRoutesConfig {
-  constructor (app: express.Application) {
+  constructor(app: express.Application) {
     super(app, 'JournalsRoutes')
   }
 
-  configureRoutes (): express.Application {
+  configureRoutes(): express.Application {
     this.app
       .route('/journals')
       .get(
@@ -24,7 +25,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
         body('wosId').isString(),
         body('name').isString().notEmpty(),
         body('impactFactor').isArray(),
-        bodyValidationMiddleware.verifiBodyFieldsErrors,
+        bodyValidationMiddleware.verifiBodyFieldsErrors(createJournalSchema),
         commonPermissionMiddleware.roleCanCreateJournal,
         journalsMiddleware.validateSameJournalNameDoesntExist,
         journalsMiddleware.validateSameJournalWosIdDoesntExist,
@@ -36,8 +37,8 @@ export class JournalsRoutes extends CommonRoutesConfig {
     this.app
       .route('/journals/:journalId')
       .all(
-        journalsMiddleware.validateJournalExists,
-        jwtMiddleware.validJwtNeeded
+        jwtMiddleware.validJwtNeeded,
+        journalsMiddleware.validateJournalExists
       )
       .get(
         commonPermissionMiddleware.roleCanReadJournal,
@@ -50,9 +51,11 @@ export class JournalsRoutes extends CommonRoutesConfig {
 
     this.app
       .route('/journals/:wosId')
-      .get(
-        journalsMiddleware.validateJournalExists,
+      .all(
         jwtMiddleware.validJwtNeeded,
+        journalsMiddleware.validateJournalExists
+      )
+      .get(
         commonPermissionMiddleware.roleCanReadJournal,
         journalsController.getJournalByWosId
       )
@@ -61,52 +64,58 @@ export class JournalsRoutes extends CommonRoutesConfig {
         body('name').isString().notEmpty(),
         body('impactFactor').isArray(),
         body('quartile').isArray(),
-        bodyValidationMiddleware.verifiBodyFieldsErrors,
+        bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
         journalsMiddleware.validateSameWosIdBelongToSameJournal,
         commonPermissionMiddleware.roleCanUpdateJournal,
         journalsController.put
       )
 
     this.app
-      .route('/journals/:name')
-      .get(
-        journalsMiddleware.validateJournalExists,
+      .route('/journals/name/:name')
+      .all(
         jwtMiddleware.validJwtNeeded,
+        journalsMiddleware.validateJournalExists
+      )
+      .get(
         commonPermissionMiddleware.roleCanReadJournal,
         journalsController.getJournalByName
       )
       .put(
-        body('wosId').isString().notEmpty(),
-        body('name').isString().notEmpty(),
-        body('impactFactor').isArray(),
-        body('quartile').isArray(),
-        bodyValidationMiddleware.verifiBodyFieldsErrors,
-        journalsMiddleware.validateSameNameBelongToSameJournal,
-        commonPermissionMiddleware.roleCanUpdateJournal,
+        // body('wosId').isString().notEmpty(),
+        // body('name').isString().notEmpty(),
+        // body('impactFactor').isArray(),
+        // body('quartile').isArray(),
+        // bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
+        // journalsMiddleware.validateSameNameBelongToSameJournal,
+        // commonPermissionMiddleware.roleCanUpdateJournal,
         journalsController.put
       )
 
-    this.app.patch('/journals/:name', [
-      body('wosId').isString().notEmpty().optional(),
-      body('name').isString().notEmpty().optional(),
-      body('impactFactor').isArray().optional(),
-      body('quartile').isArray().optional(),
-      bodyValidationMiddleware.verifiBodyFieldsErrors,
-      journalsMiddleware.validatePatchJournalName,
-      commonPermissionMiddleware.roleCanUpdateJournal,
-      journalsController.patch
-    ])
+    this.app
+      .route('/journals/name/:name')
+      .patch(
+        body('wosId').isString().notEmpty().optional(),
+        body('name').isString().notEmpty().optional(),
+        body('impactFactor').isArray().optional(),
+        body('quartile').isArray().optional(),
+        bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
+        journalsMiddleware.validatePatchJournalName,
+        commonPermissionMiddleware.roleCanUpdateJournal,
+        journalsController.patch
+      )
 
-    this.app.patch('/journals/:wosId', [
-      body('wosId').isString().notEmpty().optional(),
-      body('name').isString().notEmpty().optional(),
-      body('impactFactor').isArray().optional(),
-      body('quartile').isArray().optional(),
-      bodyValidationMiddleware.verifiBodyFieldsErrors,
-      journalsMiddleware.validatePatchJournalWosId,
-      commonPermissionMiddleware.roleCanUpdateJournal,
-      journalsController.patch
-    ])
+    this.app
+      .route('/journals/:wosId')
+      .patch(
+        body('wosId').isString().notEmpty().optional(),
+        body('name').isString().notEmpty().optional(),
+        body('impactFactor').isArray().optional(),
+        body('quartile').isArray().optional(),
+        bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
+        journalsMiddleware.validatePatchJournalWosId,
+        commonPermissionMiddleware.roleCanUpdateJournal,
+        journalsController.patch
+      )
 
     return this.app
   }

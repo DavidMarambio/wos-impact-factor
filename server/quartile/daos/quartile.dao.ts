@@ -1,8 +1,8 @@
-import { quartileModel } from '../../models/JournalWithQuartile'
 import { CreateQuartileDto } from '../dto/create.quartile.dto'
 import { PutQuartileDto } from '../dto/put.quartile.dto'
 import { PatchQuartileDto } from '../dto/patch.quartile.dto'
 import debug from 'debug'
+import { quartileModel } from '../../models/Quartile.model'
 
 const log: debug.IDebugger = debug('app:in-memory-dao')
 

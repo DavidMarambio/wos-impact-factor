@@ -1,8 +1,10 @@
-import { journalModel } from '../../models/JournalWithQuartile'
 import { CreateJournalDto } from '../dto/create.journal.dto'
 import { PutJournalDto } from '../dto/put.journal.dto'
 import { PatchJournalDto } from '../dto/patch.journal.dto'
 import debug from 'debug'
+import { journalModel } from '../../models/Journal.model'
+import { quartileModel } from '../../models/Quartile.model'
+import mongoose from 'mongoose'
 
 const log: debug.IDebugger = debug('app:in-memory-dao')
 
@@ -27,19 +29,42 @@ class JournalsDao {
 
   async getJournalById(journalId: String) {
     return await journalModel.findOne({ _id: journalId })
-      .populate('quartile')
       .exec()
   }
 
+  async getJournalWithQuartilesById(journalId: String) {
+    const journal = await journalModel.aggregate()
+      .match({ _id: new mongoose.Types.ObjectId(journalId.toString()) })
+      .lookup({
+        from: 'quartiles',
+        localField: '_id',
+        foreignField: 'journal',
+        as: 'quartiles'
+      })
+      .exec()
+    console.log(journal)
+    return journal
+  }
+
   async getJournalByWosId(wosId: String) {
-    return await journalModel.findOne({ wosId })
-      .populate('quartile')
+    return await journalModel.findOne({ wosId: wosId })
       .exec()
   }
 
   async getJournalByName(nameJournal: String) {
     return await journalModel.findOne({ name: nameJournal })
-      .populate('quartile')
+      .exec()
+  }
+
+  async getJounalWithQuartilesByName(nameJournal: string) {
+    return journalModel.aggregate()
+      .match({ name: nameJournal })
+      .lookup({
+        from: 'quartiles',
+        localField: '_id',
+        foreignField: 'journal',
+        as: 'quartiles'
+      })
       .exec()
   }
 
@@ -76,7 +101,7 @@ class JournalsDao {
   async updateJournalByWosId(wosId: String, journalFields: PatchJournalDto | PutJournalDto) {
     try {
       const existingJournal = await journalModel.findOneAndUpdate(
-        { wosId },
+        { wosId: wosId },
         { $set: journalFields },
         { new: true }
       ).exec()
@@ -100,7 +125,7 @@ class JournalsDao {
 
   async removeJournalByWosId(wosId: string) {
     try {
-      return await journalModel.deleteOne({ wosId }).exec()
+      return await journalModel.deleteOne({ wosId: wosId }).exec()
     } catch (error) {
       if (error instanceof Error) {
         console.log({ message: error.message })

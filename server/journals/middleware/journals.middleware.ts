@@ -4,7 +4,7 @@ import debug from 'debug'
 
 const log: debug.IDebugger = debug('app:journals-middleware')
 class JournalsMiddleware {
-  async validateRequiredJournalBodyFields (
+  async validateRequiredJournalBodyFields(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -24,7 +24,7 @@ class JournalsMiddleware {
     }
   }
 
-  async validateSameJournalNameDoesntExist (
+  async validateSameJournalNameDoesntExist(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -39,7 +39,7 @@ class JournalsMiddleware {
     }
   }
 
-  async validateSameJournalWosIdDoesntExist (
+  async validateSameJournalWosIdDoesntExist(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -54,12 +54,13 @@ class JournalsMiddleware {
     }
   }
 
-  async validateSameNameBelongToSameJournal (
+  async validateSameNameBelongToSameJournal(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (res.locals.journal.name === req.params.name) {
+    const journal = await journalsService.readByName(req.params.name)
+    if (journal) {
       next()
     } else {
       res.status(400).send({
@@ -68,12 +69,13 @@ class JournalsMiddleware {
     }
   }
 
-  async validateSameWosIdBelongToSameJournal (
+  async validateSameWosIdBelongToSameJournal(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (res.locals.journal.wosId === req.params.wosId) {
+    const journal = await journalsService.readByWosId(req.params.wosId)
+    if (journal) {
       next()
     } else {
       res.status(400).send({
@@ -82,33 +84,33 @@ class JournalsMiddleware {
     }
   }
 
-  async validatePatchJournalName (
+  async validatePatchJournalName(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (req.body.name) {
-      log('Validating journal name', req.body.name)
+    if (req.params.name) {
+      log('Validating journal name', req.params.name)
       this.validateSameNameBelongToSameJournal(req, res, next)
     } else {
       next()
     }
   }
 
-  async validatePatchJournalWosId (
+  async validatePatchJournalWosId(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (req.body.wosId) {
-      log('Validating journal wosId', req.body.wosId)
+    if (req.params.wosId) {
+      log('Validating journal wosId', req.params.wosId)
       this.validateSameWosIdBelongToSameJournal(req, res, next)
     } else {
       next()
     }
   }
 
-  async validateJournalExists (
+  async validateJournalExists(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -127,7 +129,7 @@ class JournalsMiddleware {
       journal = await journalsService.readById(req.params.journalId)
       param = req.params.journalId
     }
-    if (journal != null) {
+    if (journal !== null) {
       res.locals.journal = journal
       next()
     } else {
@@ -135,7 +137,7 @@ class JournalsMiddleware {
     }
   }
 
-  async extractJournalId (
+  async extractJournalId(
     req: express.Request,
     _res: express.Response,
     next: express.NextFunction
