@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node --unhandled-rejections=strict ./dist/app.js",
     "debug": "cross-env DEBUG=* && npm run start",
-    "test": "cross-env NODE_ENV=test mocha -r ts-node/register",
+    "test": "cross-env NODE_ENV=test mocha",
     "test-debug": "cross-env DEBUG=* && npm test",
     "lint": "ts-standard"
   },
