@@ -4,7 +4,7 @@ import config from 'config'
 
 export const mochaHooks = {
     beforeEach: async function () {
-        await mongoose.connect(config.get<string>('dbUri'))
+        await mongoose.connect(config.get('dbUri'))
     },
 
     afterAll: function () {
