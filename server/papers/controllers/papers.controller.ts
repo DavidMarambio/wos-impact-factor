@@ -1,6 +1,7 @@
 import express from 'express'
 import debug from 'debug'
 import papersService from '../services/papers.service'
+import journalsService from '../../journals/services/journals.service'
 
 const log: debug.IDebugger = debug('app:papers-controller')
 class PapersController {
@@ -36,12 +37,20 @@ class PapersController {
 
   async importPapers(req: express.Request, res: express.Response) {
     try {
+      let journalIds = []
       const papers = await papersService.importPapers(req.body)
-      papers ?
-        res.status(204).send(papers) :
-        res.status(400).send({ message: "Error on Massive import" })
+      if (papers) {
+        const allJournalsNames = await papersService.getJournalNameFromAllPapers()
+        for (const journalName of allJournalsNames) {
+          if ('journalName' in journalName) {
+            journalIds.push(await journalsService.create({ name: journalName.journalName.toString() }))
+          }
+        }
+        res.status(204).send({ message: `${journalIds.length} journals saved` })
+      }
     } catch (error) {
-      res.status(400).send({ Error: error })
+      console.log(error)
+      res.status(403).send({ Error: error })
     }
   }
 }

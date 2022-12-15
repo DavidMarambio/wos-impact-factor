@@ -22,7 +22,7 @@ class ImpactFactor {
 export class Journal {
   readonly _id: mongoose.Types.ObjectId;
 
-  @prop({ unique: true })
+  @prop()
   public wosId?: string
 
   @prop({ required: true, uppercase: true, trim: true })

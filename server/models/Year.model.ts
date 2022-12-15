@@ -1,7 +1,6 @@
 import { prop, modelOptions, getModelForClass, ReturnModelType } from '@typegoose/typegoose'
 @modelOptions({
   schemaOptions: {
-    _id: false,
     timestamps: true
   }
 })

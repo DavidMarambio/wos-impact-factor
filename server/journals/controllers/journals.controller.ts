@@ -2,11 +2,12 @@ import express from 'express'
 import debug from 'debug'
 import journalsService from '../services/journals.service'
 import quartilesService from '../../quartile/services/quartiles.service'
+import apiService from '../../clarivateApi/service/api.service'
 
 const log: debug.IDebugger = debug('app:journals-controller')
 class JournalsController {
   async listJournals(_req: express.Request, res: express.Response) {
-    const journals = await journalsService.list(100, 0)
+    const journals = await journalsService.list()
     res.status(200).send(journals)
   }
 
@@ -44,21 +45,13 @@ class JournalsController {
     try {
       if (req.params.wosId) {
         const put = await journalsService.putByWosId(req.params.wosId, req.body)
-        console.log(put)
         log(put)
       } else if (req.params.name) {
         const journal = await journalsService.readByName(req.params.name)
         if (journal) {
           let quartiles = req.body.quartile
           for (const quartile of quartiles) {
-            await quartilesService.create({
-              journal: journal._id.toString(),
-              area: quartile.area,
-              year: quartile.year,
-              ranking: quartile.ranking,
-              quartile: quartile.quartile,
-              percentile: quartile.percentile
-            })
+            await quartilesService.createQuartile(quartile, journal._id.toString())
           }
           const put = await journalsService.putById(journal._id.toString(), req.body)
           // const journalUpdate = await journalsService.journalWithQuartilesById(journal._id.toString())
@@ -81,6 +74,23 @@ class JournalsController {
       log(await journalsService.deleteByWosId(req.params.wosId))
     }
     res.status(204).send()
+  }
+
+  async searchWosId(req: express.Request, res: express.Response) {
+    if (req.params.name) {
+      const id = await apiService.getJournalId(req.params.name)
+      res.status(200).send({ wosId: id })
+    }
+    res.status(204).send({ message: "No data found" })
+  }
+
+  async bringJournalData(req: express.Request, res: express.Response) {
+    if (req.params.wosId && req.params.year) {
+      const impactFactor = await apiService.getImpactFactor(req.params.wosId, Number(req.params.year))
+      impactFactor ?
+        res.status(200).send({ journal: impactFactor }) :
+        res.status(400).send({ message: "No data foud" })
+    }
   }
 }
 export default new JournalsController()

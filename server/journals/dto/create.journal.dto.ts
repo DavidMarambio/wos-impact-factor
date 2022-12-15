@@ -1,5 +1,4 @@
 import { object, string, TypeOf, array, number } from "zod";
-import { createQuartileFromJournalSchema } from '../../quartile/dto/create.quartile.dto'
 
 interface ImpactFactor {
   year: number

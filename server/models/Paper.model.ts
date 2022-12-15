@@ -10,40 +10,40 @@ export class Paper {
   readonly _id: mongoose.Types.ObjectId;
 
   @prop({ required: true })
-    year: Number
+  year: Number
 
   @prop({ requiered: true, unique: true })
-    codeWos: String
+  codeWos: String
 
   @prop({ requiered: true, unique: true })
-    codeDoi: String
+  codeDoi: String
 
   @prop()
-    typePaper: typePapers
+  typePaper: typePapers
 
   @prop({ required: true })
-    journalName: String
+  journalName: String
 
-  @prop()
-    journalNumber: Number
+  @prop({ default: 0 })
+  journalNumber: Number
 
-  @prop()
-    journalVolume: Number
+  @prop({ default: 0 })
+  journalVolume: Number
 
   @prop({ required: true, trim: true, unique: true })
-    title: String
+  title: String
 
-  @prop()
-    chapterPage: Number
+  @prop({ default: 0 })
+  chapterPage: Number
 
-  @prop()
-    numberOfPages: Number
+  @prop({ default: 0 })
+  numberOfPages: Number
 
-  @prop()
-    initialPage: Number
+  @prop({ default: 0 })
+  initialPage: Number
 
-  @prop()
-    endPage: Number
+  @prop({ default: 0 })
+  endPage: Number
 }
 
 const paperModel: ReturnModelType<typeof Paper> = getModelForClass(Paper)

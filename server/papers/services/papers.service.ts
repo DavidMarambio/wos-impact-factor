@@ -53,6 +53,10 @@ class PapersService implements CRUD {
     return await PapersDao.getPapersByYear(year)
   }
 
+  async getJournalNameFromAllPapers() {
+    return await PapersDao.getJournalsNames()
+  }
+
   async importPapers(papers: CreatePaperDto[]) {
     return await PapersDao.insertManyPapers(papers)
   }

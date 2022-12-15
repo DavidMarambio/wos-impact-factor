@@ -3,7 +3,6 @@ import { PutJournalDto } from '../dto/put.journal.dto'
 import { PatchJournalDto } from '../dto/patch.journal.dto'
 import debug from 'debug'
 import { journalModel } from '../../models/Journal.model'
-import { quartileModel } from '../../models/Quartile.model'
 import mongoose from 'mongoose'
 
 const log: debug.IDebugger = debug('app:in-memory-dao')
@@ -23,8 +22,8 @@ class JournalsDao {
     return journal._id
   }
 
-  async getJournals(limit = 25, page = 0) {
-    return await journalModel.find().limit(limit).skip(limit * page).exec()
+  async getJournals() {
+    return await journalModel.find().exec()
   }
 
   async getJournalById(journalId: String) {

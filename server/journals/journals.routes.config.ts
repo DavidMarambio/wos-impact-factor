@@ -86,8 +86,8 @@ export class JournalsRoutes extends CommonRoutesConfig {
         // body('impactFactor').isArray(),
         // body('quartile').isArray(),
         // bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
-        // journalsMiddleware.validateSameNameBelongToSameJournal,
-        // commonPermissionMiddleware.roleCanUpdateJournal,
+        journalsMiddleware.validateSameNameBelongToSameJournal,
+        commonPermissionMiddleware.roleCanUpdateJournal,
         journalsController.put
       )
 
@@ -98,6 +98,7 @@ export class JournalsRoutes extends CommonRoutesConfig {
         body('name').isString().notEmpty().optional(),
         body('impactFactor').isArray().optional(),
         body('quartile').isArray().optional(),
+        jwtMiddleware.validJwtNeeded,
         bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
         journalsMiddleware.validatePatchJournalName,
         commonPermissionMiddleware.roleCanUpdateJournal,
@@ -111,10 +112,25 @@ export class JournalsRoutes extends CommonRoutesConfig {
         body('name').isString().notEmpty().optional(),
         body('impactFactor').isArray().optional(),
         body('quartile').isArray().optional(),
+        jwtMiddleware.validJwtNeeded,
         bodyValidationMiddleware.verifiBodyFieldsErrors(updateJournalSchema),
         journalsMiddleware.validatePatchJournalWosId,
         commonPermissionMiddleware.roleCanUpdateJournal,
         journalsController.patch
+      )
+
+    this.app
+      .route('/journals/search/:name')
+      .get(
+        jwtMiddleware.validJwtNeeded,
+        journalsController.searchWosId
+      )
+
+    this.app
+      .route('/journals/bring/:wosId/year/:year')
+      .get(
+        jwtMiddleware.validJwtNeeded,
+        journalsController.bringJournalData
       )
 
     return this.app

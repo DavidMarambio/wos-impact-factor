@@ -6,17 +6,22 @@ import { PatchJournalDto } from '../dto/patch.journal.dto'
 import { PutJournalDto } from '../dto/put.journal.dto'
 
 class JournalService implements CRUD {
-  async list(limit: number, page: number) {
-    return await JournalsDao.getJournals(limit, page)
+  async list() {
+    return await JournalsDao.getJournals()
   }
 
   async create(resource: CreateJournalDto) {
     return await JournalsDao.addJournal(resource)
-  };
+  }
 
   async putById(id: string, resource: PutJournalDto) {
+    if ("impactFactor" in resource) {
+      const journal = await journalsDao.getJournalById(id)
+      journal?.impactFactor?.push({ year: Number(resource.impactFactor?.[0].year), value: Number(resource.impactFactor?.[0].value) })
+      resource.impactFactor = journal?.impactFactor
+    }
     return await JournalsDao.updateJournalById(id, resource)
-  };
+  }
 
   async putByWosId(wosId: string, resource: PutJournalDto) {
     return await JournalsDao.updateJournalByWosId(wosId, resource)
