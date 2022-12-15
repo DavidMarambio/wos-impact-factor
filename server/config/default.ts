@@ -32,6 +32,7 @@ export default {
     logLevel: "info",
     accessTokenTtl: "15m",
     refreshTokenTtl: "1y",
+    clarivateToken: process.env.CLARIVATE_TOKEN,
     smtp: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
