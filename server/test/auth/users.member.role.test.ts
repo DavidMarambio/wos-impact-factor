@@ -1,12 +1,10 @@
-import supertest from 'supertest'
 import { expect } from 'chai'
 import shortid from 'shortid'
 import app from '../../app'
+import supertest from 'supertest'
 
-let accessToken = ''
 let refreshToken = ''
-let firstUserIdTest = '637ec7c5e1506e13e03eeecf'
-let verificationCode = ''
+let firstUserIdTest = ''
 let passwordResetCode = ''
 const newFirstName2 = 'Paulo'
 const newLastName2 = 'Faraco'
@@ -18,8 +16,19 @@ const testUserBody = {
   passwordConfirmation: 'Sup3rSecret!23'
 }
 
-let request: supertest.SuperAgentTest
-request = supertest.agent(app)
+const userAdmin = {
+  firstName: "David",
+  lastName: "Marambio",
+  email: 'david.marambios@uchile.cl',
+  password: 'Sup3rSecret!23',
+  passwordConfirmation: 'Sup3rSecret!23',
+  role: "admin"
+}
+let adminUserId: string
+let verificationCode: string
+let accessToken: string
+
+const request: supertest.SuperAgentTest = supertest.agent(app)
 
 describe('USERS and AUTH endpoints for member role', function () {
 
@@ -75,7 +84,6 @@ describe('USERS and AUTH endpoints for member role', function () {
       .send()
     expect(res.status).to.equal(401)
   })
-
 
   describe('With a valid access token', function () {
 
@@ -146,7 +154,7 @@ describe('USERS and AUTH endpoints for member role', function () {
       expect(res.status).to.equal(403)
     })
 
-    it('should allow a SIGN OFF from /auth/sign-off', async function () {
+    it('should allow a SIGN OFF from /auth/sign-off with "member" role', async function () {
       const res = await request
         .post(`/auth/sign-off`)
         .auth(accessToken, { type: 'bearer' })

@@ -1,15 +1,11 @@
-import supertest from 'supertest'
 import { expect } from 'chai'
 import shortid from 'shortid'
 import app from '../../app'
+import supertest from 'supertest'
 
-let accessToken = ''
 let refreshToken = ''
-let firstUserIdTest = ''
 let secondUserIdTest = ''
-let verificationCode = ''
 let passwordResetCode = ''
-const newFirstName = 'Jose'
 const newFirstName2 = 'Paulo'
 const newLastName2 = 'Faraco'
 const firstUserBody = {
@@ -23,18 +19,20 @@ const firstUserBody = {
 const userAdmin = {
   firstName: "David",
   lastName: "Marambio",
-  email: 'david.marambio@uchile.cl',
+  email: 'david.marambios@uchile.cl',
   password: 'Sup3rSecret!23',
   passwordConfirmation: 'Sup3rSecret!23',
   role: "admin"
 }
+let adminUserId: string
+let verificationCode: string
+let accessToken: string
 
-let request: supertest.SuperAgentTest
-request = supertest.agent(app)
+const request: supertest.SuperAgentTest = supertest.agent(app)
 
 describe('USERS and AUTH endpoints for admin role', function () {
 
-  it('should allow a POST to /users', async function () {
+  it('A user with admin role is created', async function () {
     const res = await request
       .post('/users')
       .send(userAdmin)
@@ -43,14 +41,25 @@ describe('USERS and AUTH endpoints for admin role', function () {
     expect(res.body).to.be.an('Object')
     expect(res.body.id).to.be.a('string')
     expect(res.body.verificationCode).to.be.a('string')
-    firstUserIdTest = res.body.id
+    adminUserId = res.body.id
     verificationCode = res.body.verificationCode
   })
 
-  it('should allow a POST to /users/verify/:id/:verificationCode', async function () {
-    const res = await request.post(`/users/verify/${firstUserIdTest}/${verificationCode}`)
+  it('User admin is verified', async function () {
+    const res = await request
+      .post(`/users/verify/${adminUserId}/${verificationCode}`)
       .send({})
     expect(res.status).to.equal(200)
+  })
+
+  it('Login with the user admin', async function () {
+    const res = await request.post('/auth').send(userAdmin)
+    expect(res.status).to.equal(200)
+    expect(res.body).not.to.be.empty
+    expect(res.body).to.be.an('Object')
+    expect(res.body.accessToken).to.be.a('string')
+    expect(res.body.refreshToken).to.be.a('string')
+    accessToken = res.body.accessToken
   })
 
   it('should allow a POST to /users/forgotpassword/:email', async function () {
@@ -66,8 +75,8 @@ describe('USERS and AUTH endpoints for admin role', function () {
   })
 
   it('should allow a POST to /users/resetpassword/:id/:passwordResetCode', async function () {
-    const res = await request.post(`/users/resetpassword/${firstUserIdTest}/${passwordResetCode}`)
-      .query({ id: firstUserIdTest, passwordResetCode: passwordResetCode })
+    const res = await request.post(`/users/resetpassword/${adminUserId}/${passwordResetCode}`)
+      .query({ id: adminUserId, passwordResetCode: passwordResetCode })
       .send({ password: 'uchile', passwordConfirmation: 'uchile' })
     expect(res.status).to.equal(200)
     userAdmin.password = 'uchile'
@@ -103,7 +112,7 @@ describe('USERS and AUTH endpoints for admin role', function () {
 
     it('should allow a GET from /users/:userId', async function () {
       const res = await request
-        .get(`/users/${firstUserIdTest}`)
+        .get(`/users/${adminUserId}`)
         .auth(accessToken, { type: 'bearer' })
         .send()
 
@@ -111,61 +120,13 @@ describe('USERS and AUTH endpoints for admin role', function () {
       expect(res.body).not.to.be.empty
       expect(res.body).to.be.an('Object')
       expect(res.body._id).to.be.a('string')
-      expect(res.body._id).to.equal(firstUserIdTest)
+      expect(res.body._id).to.equal(adminUserId)
       expect(res.body.email).to.equal(userAdmin.email)
     })
 
-
-
-    // it('should disallow a GET to /users', async function () {
-    //   const res = await request
-    //     .get('/users')
-    //     .set({ authorization: `Bearer ${accessToken}3` })
-    //     .send()
-    //   expect(res.status).to.equal(403)
-    // })
-
-    // it('should disallow a PATCH to /users/:userId', async function () {
-    //   const res = await request
-    //     .patch(`/users/${firstUserIdTest}`)
-    //     .set({ Authorization: `Bearer ${accessToken}` })
-    //     .send({
-    //       firstName: newFirstName
-    //     })
-    //   expect(res.status).to.equal(403)
-    // })
-
-    // it('should disallow a PUT to /users/:userId with an nonexistent ID', async function () {
-    //   const res = await request
-    //     .put('/users/i-do-not-exist')
-    //     .set({ Authorization: `Bearer ${accessToken}` })
-    //     .send({
-    //       email: firstUserBody.email,
-    //       password: firstUserBody.password,
-    //       firstName: 'Marcos',
-    //       lastName: 'Silva',
-    //       permissionFlags: 256
-    //     })
-    //   expect(res.status).to.equal(404)
-    // })
-
-    // it('should disallow a PUT to /users/:userId trying to change the permission role', async function () {
-    //   const res = await request
-    //     .put(`/users/${firstUserIdTest}`)
-    //     .set({ Authorization: `Bearer ${accessToken}` })
-    //     .send({
-    //       email: firstUserBody.email,
-    //       password: firstUserBody.password,
-    //       firstName: 'Marcos',
-    //       lastName: 'Silva',
-    //       role: "admin"
-    //     })
-    //   expect(res.status).to.equal(400)
-    // })
-
     it('should allow a PUT to /users/:userId/role/:role for change the permission role', async function () {
       const res = await request
-        .put(`/users/${firstUserIdTest}/role/admin`)
+        .put(`/users/${adminUserId}/role/admin`)
         .auth(accessToken, { type: 'bearer' })
         .send()
       expect(res.status).to.equal(204)
@@ -173,7 +134,7 @@ describe('USERS and AUTH endpoints for admin role', function () {
 
     it('should allow a PUT to /users/:userId to change different fields', async function () {
       const res = await request
-        .put(`/users/${firstUserIdTest}`)
+        .put(`/users/${adminUserId}`)
         .auth(accessToken, { type: 'bearer' })
         .send({
           email: userAdmin.email,
@@ -189,7 +150,7 @@ describe('USERS and AUTH endpoints for admin role', function () {
 
     it('should allow a GET from /users/:userId and should have a new full name', async function () {
       const res = await request
-        .get(`/users/${firstUserIdTest}`)
+        .get(`/users/${adminUserId}`)
         .auth(accessToken, { type: 'bearer' })
         .send()
 
@@ -200,7 +161,7 @@ describe('USERS and AUTH endpoints for admin role', function () {
       expect(res.body.firstName).to.equal(newFirstName2)
       expect(res.body.lastName).to.equal(newLastName2)
       expect(res.body.email).to.equal(userAdmin.email)
-      expect(res.body._id).to.equal(firstUserIdTest)
+      expect(res.body._id).to.equal(adminUserId)
     })
 
     it('should allow a POST to /users second user', async function () {
@@ -212,7 +173,6 @@ describe('USERS and AUTH endpoints for admin role', function () {
       expect(res.body.id).to.be.a('string')
       expect(res.body.verificationCode).to.be.a('string')
       secondUserIdTest = res.body.id
-      verificationCode = res.body.verificationCode
     })
 
     it('should allow a DELETE from /users/:userId', async function () {
@@ -223,11 +183,19 @@ describe('USERS and AUTH endpoints for admin role', function () {
       expect(res.status).to.equal(204)
     })
 
-    it('should allow a SIGN OFF from /auth/sign-off', async function () {
+    it('Admin user logout', async function () {
       const res = await request
         .post(`/auth/sign-off`)
         .auth(accessToken, { type: 'bearer' })
         .send({ email: userAdmin.email })
+      expect(res.status).to.equal(204)
+    })
+
+    it('Admin user is removed', async function () {
+      const res = await request
+        .delete(`/users/${adminUserId}`)
+        .auth(accessToken, { type: 'bearer' })
+        .send()
       expect(res.status).to.equal(204)
     })
 

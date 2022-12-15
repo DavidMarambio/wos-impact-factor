@@ -1,15 +1,13 @@
-import supertest from 'supertest'
 import { expect } from 'chai'
 import app from '../../app'
+import supertest from 'supertest'
 
-let accessToken = ''
-let adminUserId = ''
 let journalID = ''
-let verificationCode = ''
 const newJournalBody = {
     wosId: 'J_SCI_FOOD_AGR',
     name: "JOURNAL OF THE SCIENCE OF FOOD AND AGRICULTURE"
 }
+
 const userAdmin = {
     firstName: "David",
     lastName: "Marambio",
@@ -17,62 +15,14 @@ const userAdmin = {
     password: 'Sup3rSecret!23',
     passwordConfirmation: 'Sup3rSecret!23',
     role: "admin"
-}
-const importPapers = [
-    {
-        'year': 2016,
-        'codeWos': "asdasdasd",
-        'codeDoi': "asdasdasdasd",
-        'typePaper': "Artículo",
-        'journalName': "Nombre",
-        'journalNumber': 11,
-        'journalVolume': 1,
-        'title': "Título",
-        'chapterPage': 2,
-        'numberOfPages': 22,
-        'initialPage': 10,
-        'endPage': 32
-    },
-    {
-        'year': 2016,
-        'codeWos': "rtyrtyrty",
-        'codeDoi': "344erter",
-        'typePaper': "Artículo",
-        'journalName': "Nombre2",
-        'journalNumber': 11,
-        'journalVolume': 1,
-        'title': "Título2",
-        'chapterPage': 2,
-        'numberOfPages': 22,
-        'initialPage': 10,
-        'endPage': 32
-    }
-]
-
-let request: supertest.SuperAgentTest
-request = supertest.agent(app)
+  }
+  let adminUserId: string
+  let verificationCode: string
+  let accessToken: string
+  
+  const request: supertest.SuperAgentTest = supertest.agent(app)
 
 describe('JOURNALS endpoints for admin role', function () {
-
-    it('should allow a POST to /users without being logged in', async function () {
-        const res = await request
-            .post('/users')
-            .send(userAdmin)
-        expect(res.status).to.equal(201)
-        expect(res.body).not.to.be.empty
-        expect(res.body).to.be.an('Object')
-        expect(res.body.id).to.be.a('string')
-        expect(res.body.verificationCode).to.be.a('string')
-        adminUserId = res.body.id
-        verificationCode = res.body.verificationCode
-    })
-
-    it('should allow a POST to /users/verify/:id/:verificationCode', async function () {
-        const res = await request
-            .post(`/users/verify/${adminUserId}/${verificationCode}`)
-            .send({})
-        expect(res.status).to.equal(200)
-    })
 
     it('should not allow a GET to /journals without being logged in', async function () {
         const res = await request
@@ -81,7 +31,27 @@ describe('JOURNALS endpoints for admin role', function () {
         expect(res.status).to.equal(401)
     })
 
-    it('should allow a POST to /auth', async function () {
+    it('A user with admin role is created', async function () {
+        const res = await request
+          .post('/users')
+          .send(userAdmin)
+        expect(res.status).to.equal(201)
+        expect(res.body).not.to.be.empty
+        expect(res.body).to.be.an('Object')
+        expect(res.body.id).to.be.a('string')
+        expect(res.body.verificationCode).to.be.a('string')
+        adminUserId = res.body.id
+        verificationCode = res.body.verificationCode
+      })
+    
+      it('User admin is verified', async function () {
+        const res = await request
+          .post(`/users/verify/${adminUserId}/${verificationCode}`)
+          .send({})
+        expect(res.status).to.equal(200)
+      })
+    
+      it('Login with the user admin', async function () {
         const res = await request.post('/auth').send(userAdmin)
         expect(res.status).to.equal(200)
         expect(res.body).not.to.be.empty
@@ -89,7 +59,7 @@ describe('JOURNALS endpoints for admin role', function () {
         expect(res.body.accessToken).to.be.a('string')
         expect(res.body.refreshToken).to.be.a('string')
         accessToken = res.body.accessToken
-    })
+      })
 
     describe('With a valid access token', function () {
 
@@ -160,18 +130,6 @@ describe('JOURNALS endpoints for admin role', function () {
             expect(res.status).to.equal(204)
         })
 
-        // it('should allow a PATCH to /papers/:paperId', async function () {
-        //     const res = await request
-        //         .patch(`/papers/${journalID}`)
-        //         .auth(accessToken, { type: 'bearer' })
-        //         .send({
-        //             journalNumber: 12,
-        //             journalVolume: 5
-        //         })
-
-        //     expect(res.status).to.equal(204)
-        // })
-
         it('should allow a DELETE from /journals/:journalId', async function () {
             const res = await request
                 .delete(`/journals/${journalID}`)
@@ -181,21 +139,21 @@ describe('JOURNALS endpoints for admin role', function () {
             expect(res.status).to.equal(204)
         })
 
-        it('should allow a SIGN OFF from /auth/sign-off', async function () {
+        it('Admin user logout', async function () {
             const res = await request
-                .post(`/auth/sign-off`)
-                .auth(accessToken, { type: 'bearer' })
-                .send({ email: userAdmin.email })
+              .post(`/auth/sign-off`)
+              .auth(accessToken, { type: 'bearer' })
+              .send({ email: userAdmin.email })
             expect(res.status).to.equal(204)
-        })
-
-        it('should allow a DELETE from /users/:userId', async function () {
+          })
+      
+          it('Admin user is removed', async function () {
             const res = await request
-                .delete(`/users/${adminUserId}`)
-                .auth(accessToken, { type: 'bearer' })
-                .send()
+              .delete(`/users/${adminUserId}`)
+              .auth(accessToken, { type: 'bearer' })
+              .send()
             expect(res.status).to.equal(204)
-        })
+          })
 
     })
 
