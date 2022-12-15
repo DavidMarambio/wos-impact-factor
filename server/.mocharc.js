@@ -8,7 +8,7 @@ module.exports = {
   exit: true,
   bail: true,
   diff: true,
-  extension: ['js'],
+  extension: ['js','ts'],
   opts: false,
   package: './package.json',
   reporter: 'spec',
